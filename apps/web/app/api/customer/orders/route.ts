@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
       description: true,
       deadline: true,
       totalPrice: true,
+      completionFileId: true,
       promoCode: { select: { code: true, discountPct: true } },
       createdAt: true,
       items: { select: { productName: true, size: true, quantity: true, notes: true } },
