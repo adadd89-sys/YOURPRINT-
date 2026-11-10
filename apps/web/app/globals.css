@@ -596,3 +596,24 @@ footer {
 @media (max-width: 560px) {
   .admin-create-grid { grid-template-columns: 1fr; }
 }
+
+
+.admin-completion-photo {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0;
+  padding: 15px;
+  background: #0e0e0e;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: #eee;
+  font-size: 12px;
+}
+.admin-completion-photo p { margin: 0; color: #aaa; font-size: 11px; }
+.admin-completion-photo input[type="file"] {
+  width: 100%;
+  color: #bbb;
+  font-size: 11px;
+}
+.admin-completion-photo .admin-save { margin: 0; }
+.completion-photo-note { color: #eee !important; }
