@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { Bot, InlineKeyboard } from "grammy";
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
