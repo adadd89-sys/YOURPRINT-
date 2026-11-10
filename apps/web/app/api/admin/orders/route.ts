@@ -158,3 +158,109 @@ export async function PATCH(request: NextRequest) {
     }
   });
 }
+
+
+export async function POST(request: NextRequest) {
+  const auth = await requireAdmin(request);
+  if ("response" in auth) return auth.response;
+
+  let body: {
+    telegramId?: unknown;
+    artworkType?: unknown;
+    productName?: unknown;
+    size?: unknown;
+    quantity?: unknown;
+    description?: unknown;
+    deadline?: unknown;
+    totalPrice?: unknown;
+  };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Некорректный запрос." }, { status: 400 });
+  }
+
+  const telegramId = typeof body.telegramId === "string" ? body.telegramId.trim() : "";
+  const productName = typeof body.productName === "string" ? body.productName.trim() : "";
+  const size = typeof body.size === "string" ? body.size : "";
+  const quantity = Number(body.quantity);
+  const artworkType = body.artworkType;
+  const description = typeof body.description === "string" ? body.description.trim().slice(0, 1500) : "";
+
+  if (!/^\d{5,20}$/.test(telegramId)) {
+    return NextResponse.json({ error: "Укажите корректный числовой Telegram ID клиента." }, { status: 400 });
+  }
+  if (typeof artworkType !== "string" || !["READY", "CREATE_NEW"].includes(artworkType)) {
+    return NextResponse.json({ error: "Выберите вариант макета." }, { status: 400 });
+  }
+  if (productName.length < 2 || productName.length > 100) {
+    return NextResponse.json({ error: "Укажите название изделия." }, { status: 400 });
+  }
+  if (!["XS", "S", "M", "L", "XL", "XXL", "XXXL", "Universal"].includes(size)) {
+    return NextResponse.json({ error: "Выберите корректный размер." }, { status: 400 });
+  }
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 100) {
+    return NextResponse.json({ error: "Количество должно быть от 1 до 100." }, { status: 400 });
+  }
+
+  let deadline: Date | null = null;
+  if (body.deadline !== undefined && body.deadline !== null && body.deadline !== "") {
+    if (typeof body.deadline !== "string") {
+      return NextResponse.json({ error: "Некорректный срок выполнения." }, { status: 400 });
+    }
+    deadline = new Date(body.deadline);
+    if (Number.isNaN(deadline.getTime())) {
+      return NextResponse.json({ error: "Некорректный срок выполнения." }, { status: 400 });
+    }
+  }
+
+  let totalPrice: { toString(): string } | null = null;
+  if (body.totalPrice !== undefined && body.totalPrice !== null && body.totalPrice !== "") {
+    const rawPrice = String(body.totalPrice).trim().replace(",", ".");
+    if (!/^\d{1,8}(\.\d{1,2})?$/.test(rawPrice) || Number(rawPrice) < 0.01) {
+      return NextResponse.json({ error: "Укажите корректную стоимость в рублях." }, { status: 400 });
+    }
+    totalPrice = { toString: () => rawPrice };
+  }
+
+  const customer = await prisma.user.upsert({
+    where: { telegramId: BigInt(telegramId) },
+    create: { telegramId: BigInt(telegramId), role: "CUSTOMER" },
+    update: {}
+  });
+
+  const order = await prisma.order.create({
+    data: {
+      customerId: customer.id,
+      artworkType: artworkType as "READY" | "CREATE_NEW",
+      description: description || null,
+      deadline,
+      ...(totalPrice ? { totalPrice: totalPrice.toString() } : {}),
+      items: { create: { productName, size, quantity } },
+      statusHistory: {
+        create: {
+          changedById: auth.user.id,
+          toStatus: "NEW",
+          comment: "Заказ вручную создан администратором"
+        }
+      }
+    },
+    include: { items: true }
+  });
+
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (token) {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: telegramId,
+        text: `Для вас создан заказ YOURPRINT №${order.number}. Изделие: ${productName}, размер ${size}, количество: ${quantity}. Мы свяжемся с вами для уточнения деталей.`
+      })
+    }).catch(() => undefined);
+  }
+
+  return NextResponse.json({
+    order: { id: order.id, number: order.number, status: order.status }
+  }, { status: 201 });
+}
