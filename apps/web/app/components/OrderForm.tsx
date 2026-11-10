@@ -19,6 +19,7 @@ export function OrderForm() {
   const [size, setSize] = useState("M");
   const [quantity, setQuantity] = useState(1);
   const [description, setDescription] = useState("");
+  const [promoCode, setPromoCode] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
@@ -59,6 +60,7 @@ export function OrderForm() {
       body.set("size", size);
       body.set("quantity", String(quantity));
       body.set("description", description);
+      body.set("promoCode", promoCode);
       files.forEach((file) => body.append("files", file, file.name));
 
       const response = await fetch("/api/orders", { method: "POST", body });
@@ -68,8 +70,10 @@ export function OrderForm() {
       const fileNote = result.warning
         ? ` ${result.warning}`
         : files.length ? ` Файлы (${files.length}) переданы администраторам.` : "";
-      setMessage(`Заявка №${result.order.number} отправлена! Мы свяжемся с вами в Telegram для уточнения деталей и стоимости.${fileNote}`);
+      const promoNote = result.promo ? ` Промокод ${result.promo.code} применён: скидка ${result.promo.discountPct}%.` : "";
+      setMessage(`Заявка №${result.order.number} отправлена!${promoNote} Мы свяжемся с вами в Telegram для уточнения деталей и стоимости.${fileNote}`);
       setDescription("");
+      setPromoCode("");
       setFiles([]);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Произошла ошибка.");
@@ -138,6 +142,11 @@ export function OrderForm() {
           </ul>
         )}
       </div>
+
+      <label className="field-label">Промокод
+        <input value={promoCode} onChange={e => setPromoCode(e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, ""))} maxLength={32} placeholder="Если есть, введите код" autoCapitalize="characters" />
+        <small className="promo-hint">Скидка будет подтверждена при оформлении заказа.</small>
+      </label>
 
       <label className="field-label">Комментарий к заказу
         <textarea value={description} onChange={e => setDescription(e.target.value)} maxLength={1500} rows={4} placeholder={artworkType === "READY" ? "Опишите макет, расположение и пожелания." : "Опишите идею, стиль, надписи и пожелания."} />
