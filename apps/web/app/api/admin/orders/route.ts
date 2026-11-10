@@ -214,13 +214,13 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  let totalPrice: { toString(): string } | null = null;
+  let totalPrice: string | null = null;
   if (body.totalPrice !== undefined && body.totalPrice !== null && body.totalPrice !== "") {
     const rawPrice = String(body.totalPrice).trim().replace(",", ".");
     if (!/^\d{1,8}(\.\d{1,2})?$/.test(rawPrice) || Number(rawPrice) < 0.01) {
       return NextResponse.json({ error: "Укажите корректную стоимость в рублях." }, { status: 400 });
     }
-    totalPrice = { toString: () => rawPrice };
+    totalPrice = rawPrice;
   }
 
   const customer = await prisma.user.upsert({
@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
       artworkType: artworkType as "READY" | "CREATE_NEW",
       description: description || null,
       deadline,
-      ...(totalPrice ? { totalPrice: totalPrice.toString() } : {}),
+      ...(totalPrice !== null ? { totalPrice } : {}),
       items: { create: { productName, size, quantity } },
       statusHistory: {
         create: {
