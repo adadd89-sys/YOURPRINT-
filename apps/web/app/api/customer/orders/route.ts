@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
     auth.telegramUser.username ? `Telegram: @${auth.telegramUser.username}` : `Telegram ID: ${auth.telegramUser.id}`,
     `Макет: ${source.artworkType === "READY" ? "Готовый" : "Нужен новый дизайн"}`,
     ...itemLines,
-    source.files.length ? `Макеты из исходного заказа: ${source.files.length}` : "Макеты не прикреплялись",
+    source.files.filter((file) => file.id !== source.completionFileId).length ? `Макеты из исходного заказа: ${source.files.filter((file) => file.id !== source.completionFileId).length}` : "Макеты не прикреплялись",
     source.description ? `Комментарий: ${source.description}` : ""
   ].filter(Boolean).join("\n");
 
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
   ));
 
   // Re-send previously attached artwork to administrators when Telegram file IDs are available.
-  await Promise.all(source.files.filter((file) => file.telegramFileId).flatMap((file) =>
+  await Promise.all(source.files.filter((file) => file.id !== source.completionFileId && file.telegramFileId).flatMap((file) =>
     adminIds.map((chatId) => fetch(`https://api.telegram.org/bot${auth.token}/sendDocument`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
