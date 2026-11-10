@@ -15,8 +15,22 @@ jobs:
     name: Install, generate Prisma client, and build apps
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: yourprint
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d yourprint"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
-      DATABASE_URL: postgresql://ci:ci@localhost:5432/yourprint?schema=public
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/yourprint?schema=public
       TELEGRAM_BOT_TOKEN: "000000000:ci-placeholder-token"
       MINI_APP_URL: https://example.com
       ADMIN_TELEGRAM_IDS: "123456789"
@@ -32,8 +46,14 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Validate Prisma schema
+        run: npx prisma validate
+
       - name: Generate Prisma Client
         run: npm run db:generate
+
+      - name: Apply migrations to CI database
+        run: npx prisma migrate deploy
 
       - name: Build Telegram bot
         run: npm run build:bot
