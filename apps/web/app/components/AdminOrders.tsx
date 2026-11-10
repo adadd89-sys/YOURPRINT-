@@ -272,7 +272,7 @@ export function AdminOrders() {
               <input
                 type="file"
                 accept="image/jpeg,image/png,.jpg,.jpeg,.png"
-                onChange={(event) => setCompletionPhoto(event.target.files?.[0] ?? null)}
+                onChange={(event) => { setCompletionPhoto(event.target.files?.[0] ?? null); event.currentTarget.value = ""; }}
               />
               <button type="button" className="admin-save" disabled={!completionPhoto || sendingCompletionPhoto} onClick={sendCompletionPhoto}>
                 {sendingCompletionPhoto ? "ОТПРАВЛЯЕМ…" : "ОТПРАВИТЬ ФОТО КЛИЕНТУ"}
