@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 
 declare global {
   interface Window {
@@ -58,7 +58,7 @@ export function AdminPromoCodes() {
     load(data).catch((e: Error) => setError(e.message)).finally(() => setLoading(false));
   }, [load]);
 
-  async function createPromo(event: React.FormEvent<HTMLFormElement>) {
+  async function createPromo(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!initData) return;
     setSaving(true);
