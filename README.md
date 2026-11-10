@@ -44,20 +44,13 @@ The repository currently includes the initial monorepo, Prisma schema, Telegram 
 
 ## Continuous integration
 
-GitHub Actions runs on pushes and pull requests targeting `main`. It installs the workspace dependencies, validates the Prisma schema, generates Prisma Client, applies all migrations to a temporary PostgreSQL 16 service, and builds both the Telegram bot and the Mini App. The workflow is defined in `.github/workflows/ci.yml`.
+GitHub Actions runs on pushes and pull requests targeting `main`. It installs the workspace dependencies, validates the Prisma schema, generates Prisma Client, applies all migrations to a temporary PostgreSQL 16 service, and builds both the Telegram bot and the Mini App. The workflow is defined in `.github/workflows/ci.yml`. It also builds the Cloudflare Worker bundle to catch deployment-specific build failures.
 
-## Production launch checklist
+## Production readiness
 
-1. Provision a production PostgreSQL database and keep its connection string private.
-2. Configure the server environment using `.env.example`: `DATABASE_URL`, `TELEGRAM_BOT_TOKEN`, `MINI_APP_URL`, and `ADMIN_TELEGRAM_IDS`.
-3. Run `npm run db:deploy` against the production database before starting the application. The initial migration is intended for a fresh database; do not apply it to a database that already contains manually-created tables without first reconciling the schema.
-4. Deploy the Mini App on a public HTTPS URL and set the same URL in `MINI_APP_URL).
-5. Run the bot as a persistent Node.js process with the same `TELEGRAM_BOT_TOKEN`.
-6. Open the bot, send `/start`, verify the Mini App button, and test customer registration, order creation, file delivery to admins, promo-code redemption, status notifications, repeat orders, and completion-photo delivery with real Telegram accounts.
-7. Confirm the first administrator has opened the bot and started it, and each customer has started the bot before the bot attempts to message them.
+Production deployment is documented below for Cloudflare Workers + Neon. Do not start accepting real orders until the Worker is deployed, the database migration has succeeded, the Telegram webhook is registered, and the end-to-end order flow has been tested.
 
-Do not commit production secrets or paste the bot token into chat. This repository does not yet include hosting credentials or a production deployment target; a successful CI build is a prerequisite, not proof of a live production launch.
-
+Do not commit production secrets or paste the bot token into chat.
 
 ## Free deployment: Cloudflare Workers + Neon PostgreSQL
 
