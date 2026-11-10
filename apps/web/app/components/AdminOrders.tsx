@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 
 declare global {
   interface Window {
@@ -46,6 +46,15 @@ export function AdminOrders() {
   const [nextStatus, setNextStatus] = useState<OrderStatus>("NEW");
   const [deadline, setDeadline] = useState("");
   const [comment, setComment] = useState("");
+  const [newTelegramId, setNewTelegramId] = useState("");
+  const [newArtworkType, setNewArtworkType] = useState<"READY" | "CREATE_NEW">("READY");
+  const [newProductName, setNewProductName] = useState("Футболка");
+  const [newSize, setNewSize] = useState("M");
+  const [newQuantity, setNewQuantity] = useState(1);
+  const [newDescription, setNewDescription] = useState("");
+  const [newDeadline, setNewDeadline] = useState("");
+  const [newTotalPrice, setNewTotalPrice] = useState("");
+  const [creating, setCreating] = useState(false);
 
   const selected = orders.find((order) => order.id === selectedId) ?? null;
 
@@ -84,6 +93,46 @@ export function AdminOrders() {
     setComment("");
   }, [selectedId]);
 
+  async function createOrder(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!initData) return;
+    setCreating(true);
+    setError("");
+    try {
+      const response = await fetch("/api/admin/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-telegram-init-data": initData
+        },
+        body: JSON.stringify({
+          telegramId: newTelegramId,
+          artworkType: newArtworkType,
+          productName: newProductName,
+          size: newSize,
+          quantity: newQuantity,
+          description: newDescription,
+          deadline: newDeadline || null,
+          totalPrice: newTotalPrice || null
+        })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? "Не удалось создать заказ.");
+      setNewTelegramId("");
+      setNewDescription("");
+      setNewDeadline("");
+      setNewTotalPrice("");
+      setNewQuantity(1);
+      setFilter("ALL");
+      await loadOrders(initData, "ALL");
+      setSelectedId(result.order.id);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Ошибка создания заказа.");
+    } finally {
+      setCreating(false);
+    }
+  }
+
   async function saveChanges() {
     if (!selected || !initData) return;
     setSaving(true);
@@ -118,6 +167,43 @@ export function AdminOrders() {
         <div><p className="eyebrow">УПРАВЛЕНИЕ ЗАКАЗАМИ</p><h1 className="admin-title">Заказы</h1></div>
         <button className="admin-refresh" onClick={() => initData && loadOrders(initData, filter)}>Обновить</button>
       </div>
+
+      <form className="admin-create" onSubmit={createOrder}>
+        <div><p className="eyebrow">РУЧНОЕ ОФОРМЛЕНИЕ</p><h2>Создать заказ</h2></div>
+        <label className="admin-field">Telegram ID клиента
+          <input value={newTelegramId} onChange={(event) => setNewTelegramId(event.target.value.replace(/\D/g, ""))} inputMode="numeric" minLength={5} maxLength={20} required placeholder="Например, 123456789" />
+        </label>
+        <div className="admin-create-grid">
+          <label className="admin-field">Тип макета
+            <select value={newArtworkType} onChange={(event) => setNewArtworkType(event.target.value as "READY" | "CREATE_NEW")}>
+              <option value="READY">Готовый макет</option>
+              <option value="CREATE_NEW">Нужен новый дизайн</option>
+            </select>
+          </label>
+          <label className="admin-field">Изделие
+            <input value={newProductName} onChange={(event) => setNewProductName(event.target.value)} maxLength={100} required />
+          </label>
+          <label className="admin-field">Размер
+            <select value={newSize} onChange={(event) => setNewSize(event.target.value)}>
+              {["XS", "S", "M", "L", "XL", "XXL", "XXXL", "Universal"].map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+          </label>
+          <label className="admin-field">Количество
+            <input type="number" min={1} max={100} value={newQuantity} onChange={(event) => setNewQuantity(Number(event.target.value))} required />
+          </label>
+          <label className="admin-field">Срок выполнения
+            <input type="date" value={newDeadline} onChange={(event) => setNewDeadline(event.target.value)} />
+          </label>
+          <label className="admin-field">Стоимость, ₽
+            <input type="number" min="0.01" step="0.01" value={newTotalPrice} onChange={(event) => setNewTotalPrice(event.target.value)} placeholder="Можно оставить пустым" />
+          </label>
+        </div>
+        <label className="admin-field">Комментарий
+          <textarea rows={2} maxLength={1500} value={newDescription} onChange={(event) => setNewDescription(event.target.value)} placeholder="Пожелания клиента" />
+        </label>
+        <button className="admin-save" type="submit" disabled={creating}>{creating ? "Создаём…" : "Создать заказ"}</button>
+        <p className="admin-create-note">Клиент получит сообщение в Telegram, если уже запускал бота.</p>
+      </form>
 
       <label className="admin-filter">Фильтр по статусу
         <select value={filter} onChange={(event) => setFilter(event.target.value)}>
