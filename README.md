@@ -17,7 +17,7 @@ Telegram bot and Mini App for ordering DTF printing.
 ## Local setup
 1. Clone this repository.
 2. Install dependencies: `npm install`.
-3. Copy `.env.example` to `.env` and fill in the Telegram token, Mini App URL and PostgreSQL connection.
+3. Copy `.env.example` to `.env` and fill in the Telegram token, Mini App URL, PostgreSQL connection and `ADMIN_TELEGRAM_IDS` (comma-separated numeric Telegram IDs of administrators).
 4. Generate the Prisma client: `npm run db:generate`.
 5. Create the database schema: `npm run db:migrate`.
 6. Start the bot: `npm run dev:bot`.
@@ -39,4 +39,4 @@ Telegram bot and Mini App for ordering DTF printing.
 - No mass mailings or analytics in the first release.
 
 ## Current implementation status
-The repository contains the initial monorepo, database schema, Telegram bot entry point and monochrome Mini App landing screen. Order submission, Telegram Web App authentication, admin workflows and deployment are the next implementation steps.
+The repository currently includes the initial monorepo, Prisma schema, Telegram bot entry point, Telegram Web App authentication, customer order form/API and a protected admin order dashboard. The admin dashboard is available at `/admin` inside the Telegram Mini App. Admin access is restricted server-side to Telegram IDs listed in `ADMIN_TELEGRAM_IDS`. Administrators can filter orders, inspect order details, set deadlines and change statuses; status changes are recorded and a Telegram notification is sent to the customer. File uploads, promo-code workflows, repeat orders and deployment remain to be implemented and tested.
