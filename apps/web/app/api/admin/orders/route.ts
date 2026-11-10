@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
       description: true,
       deadline: true,
       totalPrice: true,
+      promoCode: { select: { code: true, discountPct: true } },
       createdAt: true,
       customer: {
         select: { firstName: true, lastName: true, username: true, telegramId: true }
