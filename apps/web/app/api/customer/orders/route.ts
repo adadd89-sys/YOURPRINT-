@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
         }))
       },
       files: {
-        create: source.files.map((file) => ({
+        create: source.files.filter((file) => file.id !== source.completionFileId).map((file) => ({
           fileName: file.fileName,
           telegramFileId: file.telegramFileId
         }))
