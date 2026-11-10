@@ -23,9 +23,7 @@ body {
   background-image: radial-gradient(ellipse at 50% 0%, #202020 0%, transparent 55%);
 }
 
-button, a {
-  font: inherit;
-}
+button, a, input, select, textarea { font: inherit; }
 
 .page {
   width: min(100% - 40px, 620px);
@@ -51,24 +49,17 @@ button, a {
   letter-spacing: -1px;
 }
 
-.logo span {
-  color: #8d8d8d;
-}
+.logo span { color: #8d8d8d; }
 
-.topbar-note, .eyebrow, .section-heading > span, .coming-soon, footer {
+.topbar-note, .eyebrow, .form-heading > span, footer {
   color: var(--muted);
   font-size: 10px;
   letter-spacing: 2px;
   font-weight: 700;
 }
 
-.hero {
-  padding: 76px 0 68px;
-}
-
-.eyebrow {
-  margin: 0 0 22px;
-}
+.hero { padding: 65px 0 48px; }
+.eyebrow { margin: 0 0 22px; }
 
 h1 {
   margin: 0;
@@ -78,9 +69,7 @@ h1 {
   font-weight: 900;
 }
 
-h1 span {
-  color: #858585;
-}
+h1 span { color: #858585; }
 
 .intro {
   max-width: 370px;
@@ -90,73 +79,121 @@ h1 span {
   line-height: 1.6;
 }
 
-.order-section {
-  padding-bottom: 55px;
+.session-note {
+  margin: 20px 0 0;
+  color: #c8c8c8;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  line-height: 1.6;
+  font-weight: 700;
 }
 
-.section-heading h2 {
-  margin: 12px 0 24px;
+.order-form {
+  display: grid;
+  gap: 22px;
+  padding: 28px 22px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  margin-bottom: 50px;
+}
+
+.form-heading h2 {
+  margin: 12px 0 0;
   font-size: 25px;
   letter-spacing: -1px;
 }
 
-.service-list {
+.order-form fieldset {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.order-form legend, .field-label {
   display: grid;
   gap: 10px;
+  color: #e7e7e7;
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.service-card {
-  width: 100%;
-  min-height: 104px;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 20px;
+.choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  margin-top: 10px;
+}
+
+.choice {
+  min-height: 88px;
+  padding: 13px;
+  display: grid;
+  align-content: center;
+  gap: 8px;
   text-align: left;
   color: var(--text);
-  background: var(--surface);
+  background: #0d0d0d;
   border: 1px solid var(--line);
-  border-radius: 12px;
-  opacity: .72;
+  border-radius: 9px;
+  cursor: pointer;
 }
 
-.service-number {
-  color: #777;
+.choice.active {
+  border-color: #f5f5f5;
+  background: #222;
+}
+
+.choice strong { font-size: 12px; }
+.choice small { color: var(--muted); font-size: 10px; line-height: 1.4; }
+
+.field-label input, .field-label select, .field-label textarea {
+  width: 100%;
+  padding: 13px 14px;
+  color: var(--text);
+  background: #0b0b0b;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+}
+
+.field-label input:focus, .field-label select:focus, .field-label textarea:focus {
+  border-color: #888;
+}
+
+.field-label textarea { resize: vertical; line-height: 1.5; }
+
+.submit-order {
+  min-height: 52px;
+  padding: 14px;
+  color: #080808;
+  background: #f2f2f2;
+  border: 0;
+  border-radius: 8px;
   font-size: 12px;
-  align-self: flex-start;
+  font-weight: 900;
+  letter-spacing: 1px;
+  cursor: pointer;
 }
 
-.service-copy {
-  display: grid;
-  gap: 7px;
-  flex: 1;
+.submit-order:disabled { opacity: .55; cursor: wait; }
+
+.form-message {
+  margin: -7px 0 0;
+  padding: 13px;
+  border: 1px solid #555;
+  border-radius: 8px;
+  color: #f1f1f1;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
-.service-copy strong {
-  font-size: 17px;
-}
-
-.service-copy small {
+.form-footnote {
+  margin: -12px 0 0;
   color: var(--muted);
-  font-size: 12px;
-  line-height: 1.45;
-}
-
-.service-arrow {
-  color: #777;
-  font-size: 20px;
-}
-
-.coming-soon, .session-note {
-  margin-top: 20px;
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  line-height: 1.6;
-}
-
-.session-note {
-  color: #c8c8c8;
-  font-weight: 700;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 footer {
@@ -172,5 +209,7 @@ footer {
 @media (max-width: 380px) {
   .page { width: min(100% - 28px, 620px); }
   h1 { letter-spacing: -3px; }
+  .order-form { padding: 22px 15px; }
+  .choice-grid { grid-template-columns: 1fr; }
   footer { letter-spacing: 1px; }
 }
