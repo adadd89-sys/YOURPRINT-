@@ -80,14 +80,14 @@ export async function POST(request: NextRequest) {
       token,
       chatId,
       "Добро пожаловать в YOURPRINT!\\n\\nЗдесь можно оформить заказ на DTF-печать, выбрать готовый макет или заказать разработку дизайна.",
-      process.env.MINI_APP_URL
+      process.env.MINI_APP_URL || request.nextUrl.origin
     );
   } else if (command === "/help") {
     await sendTelegramMessage(
       token,
       chatId,
       "Чтобы оформить заказ, нажмите «Открыть YOURPRINT» в сообщении бота. По вопросам заказа можно написать администратору.",
-      process.env.MINI_APP_URL
+      process.env.MINI_APP_URL || request.nextUrl.origin
     );
   }
 
