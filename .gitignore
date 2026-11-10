@@ -6,3 +6,8 @@ dist/
 build/
 coverage/
 .DS_Store
+
+.dev.vars
+.cloudflare/
+.open-next/
+cloudflare-env.d.ts
