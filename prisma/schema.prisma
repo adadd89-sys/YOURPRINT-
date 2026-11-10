@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  NEW
+  ACCEPTED
+  IN_PROGRESS
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+enum ArtworkType {
+  READY
+  CREATE_NEW
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+}
+
+model User {
+  id           String   @id @default(cuid())
+  telegramId   BigInt   @unique
+  username     String?
+  firstName    String?
+  lastName     String?
+  role         UserRole @default(CUSTOMER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  orders       Order[]
+  statusEvents OrderStatusEvent[]
+}
+
+model Order {
+  id             String       @id @default(cuid())
+  number         Int          @unique @default(autoincrement())
+  customerId     String
+  customer       User         @relation(fields: [customerId], references: [id])
+  status         OrderStatus  @default(NEW)
+  artworkType    ArtworkType
+  description    String?
+  deadline       DateTime?
+  totalPrice     Decimal?     @db.Decimal(10, 2)
+  promoCodeId    String?
+  promoCode      PromoCode?   @relation(fields: [promoCodeId], references: [id])
+  completionFileId String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  items          OrderItem[]
+  files          OrderFile[]
+  statusHistory  OrderStatusEvent[]
+
+  @@index([customerId, createdAt])
+  @@index([status, deadline])
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productName String
+  size        String
+  quantity    Int     @default(1)
+  notes       String?
+}
+
+model OrderFile {
+  id           String   @id @default(cuid())
+  orderId      String
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  telegramFileId String?
+  fileUrl      String?
+  fileName     String?
+  createdAt    DateTime @default(now())
+}
+
+model OrderStatusEvent {
+  id          String      @id @default(cuid())
+  orderId     String
+  order       Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  changedById String?
+  changedBy   User?       @relation(fields: [changedById], references: [id])
+  fromStatus  OrderStatus?
+  toStatus    OrderStatus
+  comment     String?
+  createdAt   DateTime    @default(now())
+
+  @@index([orderId, createdAt])
+}
+
+model PromoCode {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  discountPct Int
+  isActive    Boolean  @default(true)
+  startsAt    DateTime?
+  expiresAt   DateTime?
+  usageLimit  Int?
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  orders      Order[]
+}
