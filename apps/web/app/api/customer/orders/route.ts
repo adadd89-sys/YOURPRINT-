@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
       totalPrice: order.totalPrice?.toString() ?? null,
       deadline: order.deadline?.toISOString() ?? null,
       createdAt: order.createdAt.toISOString(),
-      files: order.files.map((file) => ({ ...file, createdAt: file.createdAt.toISOString() })),
+      files: order.files.filter((file) => file.id !== order.completionFileId).map((file) => ({ ...file, createdAt: file.createdAt.toISOString() })),
       statusHistory: order.statusHistory.map((event) => ({ ...event, createdAt: event.createdAt.toISOString() }))
     }))
   });
