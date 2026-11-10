@@ -1,4 +1,5 @@
 import { AdminOrders } from "../components/AdminOrders";
+import { AdminPromoCodes } from "../components/AdminPromoCodes";
 
 export default function AdminPage() {
   return (
@@ -8,6 +9,7 @@ export default function AdminPage() {
         <span className="topbar-note">ADMIN PANEL</span>
       </header>
       <AdminOrders />
+      <AdminPromoCodes />
     </main>
   );
 }
