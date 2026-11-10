@@ -1,0 +1,7 @@
+# Copy to .dev.vars for local Cloudflare Worker preview.
+# Never commit real credentials.
+DATABASE_URL=postgresql://USER:PASSWORD@HOST/DB?sslmode=require
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_WEBHOOK_SECRET=
+MINI_APP_URL=http://localhost:3000
+ADMIN_TELEGRAM_IDS=
