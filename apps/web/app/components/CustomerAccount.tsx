@@ -119,6 +119,7 @@ export function CustomerAccount() {
             {selected.items.map((item, index) => <p key={index}><b>{item.productName}:</b> {item.size}, {item.quantity} шт.{item.notes ? ` — ${item.notes}` : ""}</p>)}
             <p><b>Срок выполнения:</b> {date(selected.deadline)}</p>
             {selected.promoCode && <p><b>Промокод:</b> {selected.promoCode.code} · скидка {selected.promoCode.discountPct}%</p>}
+            {selected.promoCode && <p><b>Промокод:</b> {selected.promoCode.code} · скидка {selected.promoCode.discountPct}%</p>}
             <p><b>Стоимость:</b> {selected.totalPrice ? `${selected.totalPrice} ₽` : "Уточняется в Telegram"}</p>
             {selected.description && <p><b>Комментарий:</b> {selected.description}</p>}
             {selected.files.length > 0 && <div className="account-files"><b>Прикреплённые файлы</b>{selected.files.map((file) => <span key={file.id}>↳ {file.fileName || "Файл"}</span>)}<small>Если нужно получить копию файла, напишите менеджеру в Telegram.</small></div>}
