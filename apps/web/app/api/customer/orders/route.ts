@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
   // The source order is always scoped to the authenticated Telegram user.
   const source = await prisma.order.findFirst({
     where: { id: body.orderId, customerId: auth.user.id },
-    include: { items: true }
+    include: { items: true, files: true }
   });
   if (!source || source.items.length === 0) {
     return NextResponse.json({ error: "Заказ не найден или его нельзя повторить." }, { status: 404 });
@@ -101,6 +101,12 @@ export async function POST(request: NextRequest) {
           notes: item.notes
         }))
       },
+      files: {
+        create: source.files.map((file) => ({
+          fileName: file.fileName,
+          telegramFileId: file.telegramFileId
+        }))
+      },
       statusHistory: { create: { toStatus: "NEW", comment: `Повтор заказа №${source.number}` } }
     },
     include: { items: true }
@@ -115,6 +121,7 @@ export async function POST(request: NextRequest) {
     auth.telegramUser.username ? `Telegram: @${auth.telegramUser.username}` : `Telegram ID: ${auth.telegramUser.id}`,
     `Макет: ${source.artworkType === "READY" ? "Готовый" : "Нужен новый дизайн"}`,
     ...itemLines,
+    source.files.length ? `Макеты из исходного заказа: ${source.files.length}` : "Макеты не прикреплялись",
     source.description ? `Комментарий: ${source.description}` : ""
   ].filter(Boolean).join("\n");
 
@@ -124,6 +131,19 @@ export async function POST(request: NextRequest) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ chat_id: chatId, text: message })
     }).catch(() => undefined)
+  ));
+
+  // Re-send previously attached artwork to administrators when Telegram file IDs are available.
+  await Promise.all(source.files.filter((file) => file.telegramFileId).flatMap((file) =>
+    adminIds.map((chatId) => fetch(`https://api.telegram.org/bot${auth.token}/sendDocument`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        document: file.telegramFileId,
+        caption: `Макет к повторному заказу YOURPRINT №${repeated.number}${file.fileName ? ` · ${file.fileName}` : ""}`
+      })
+    }).catch(() => undefined))
   ));
 
   return NextResponse.json({ order: { id: repeated.id, number: repeated.number, status: repeated.status } }, { status: 201 });
