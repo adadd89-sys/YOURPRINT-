@@ -4,15 +4,6 @@ import { validateTelegramInitData } from "../../../../lib/telegram-auth";
 
 export const runtime = "nodejs";
 
-const statusLabels: Record<string, string> = {
-  NEW: "Новый",
-  ACCEPTED: "Принят",
-  IN_PROGRESS: "В работе",
-  READY: "Готов",
-  COMPLETED: "Завершён",
-  CANCELLED: "Отменён"
-};
-
 async function authenticate(request: NextRequest) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) return { error: NextResponse.json({ error: "Сервис пока не настроен." }, { status: 503 }) };
@@ -21,8 +12,20 @@ async function authenticate(request: NextRequest) {
   if (!telegramUser) {
     return { error: NextResponse.json({ error: "Не удалось подтвердить Telegram. Переоткройте Mini App." }, { status: 401 }) };
   }
-  const user = await prisma.user.findUnique({ where: { telegramId: BigInt(telegramUser.id) } });
-  if (!user) return { error: NextResponse.json({ error: "Профиль не найден. Откройте Mini App заново." }, { status: 401 }) };
+  const user = await prisma.user.upsert({
+    where: { telegramId: BigInt(telegramUser.id) },
+    create: {
+      telegramId: BigInt(telegramUser.id),
+      username: telegramUser.username,
+      firstName: telegramUser.first_name,
+      lastName: telegramUser.last_name
+    },
+    update: {
+      username: telegramUser.username,
+      firstName: telegramUser.first_name,
+      lastName: telegramUser.last_name
+    }
+  });
   return { user, telegramUser, token };
 }
 
