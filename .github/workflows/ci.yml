@@ -34,6 +34,7 @@ jobs:
       TELEGRAM_BOT_TOKEN: "000000000:ci-placeholder-token"
       MINI_APP_URL: https://example.com
       ADMIN_TELEGRAM_IDS: "123456789"
+      TELEGRAM_WEBHOOK_SECRET: "ci-webhook-secret-placeholder"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -60,3 +61,6 @@ jobs:
 
       - name: Build Mini App
         run: npm run build:web
+
+      - name: Build Cloudflare Worker bundle
+        run: npm run build:web:cloudflare
