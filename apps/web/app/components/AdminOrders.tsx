@@ -18,6 +18,7 @@ type Order = {
   description: string | null;
   deadline: string | null;
   totalPrice: string | null;
+  completionFileId: string | null;
   promoCode: { code: string; discountPct: number } | null;
   createdAt: string;
   customer: { firstName: string | null; lastName: string | null; username: string | null; telegramId: string };
@@ -56,6 +57,9 @@ export function AdminOrders() {
   const [newDeadline, setNewDeadline] = useState("");
   const [newTotalPrice, setNewTotalPrice] = useState("");
   const [creating, setCreating] = useState(false);
+  const [completionPhoto, setCompletionPhoto] = useState<File | null>(null);
+  const [sendingCompletionPhoto, setSendingCompletionPhoto] = useState(false);
+  const [photoMessage, setPhotoMessage] = useState("");
 
   const selected = orders.find((order) => order.id === selectedId) ?? null;
 
@@ -131,6 +135,31 @@ export function AdminOrders() {
       setError(reason instanceof Error ? reason.message : "Ошибка создания заказа.");
     } finally {
       setCreating(false);
+    }
+  }
+
+  async function sendCompletionPhoto() {
+    if (!selected || !initData || !completionPhoto) return;
+    setSendingCompletionPhoto(true);
+    setPhotoMessage("");
+    setError("");
+    try {
+      const body = new FormData();
+      body.set("photo", completionPhoto, completionPhoto.name);
+      const response = await fetch(`/api/admin/orders/${selected.id}/completion-photo`, {
+        method: "POST",
+        headers: { "x-telegram-init-data": initData },
+        body
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? "Не удалось отправить фотографию.");
+      setCompletionPhoto(null);
+      setPhotoMessage("Фотография отправлена клиенту в Telegram.");
+      await loadOrders(initData, filter);
+    } catch (reason) {
+      setPhotoMessage(reason instanceof Error ? reason.message : "Ошибка отправки фотографии.");
+    } finally {
+      setSendingCompletionPhoto(false);
     }
   }
 
@@ -237,6 +266,19 @@ export function AdminOrders() {
             {selected.description && <p><b>Комментарий:</b> {selected.description}</p>}
             <div className="admin-files"><b>Файлы макета ({selected.files.length}):</b>{selected.files.length === 0 ? <p>Файлы не прикреплены.</p> : selected.files.map((file) => <p key={file.id}>📎 {file.fileName}{file.telegramFileId ? " · отправлен в Telegram" : " · не удалось передать в Telegram"}</p>)}</div>
             {selected.promoCode && <p><b>Промокод:</b> {selected.promoCode.code} · скидка {selected.promoCode.discountPct}%</p>}
+            <div className="admin-completion-photo">
+              <b>Фотография готового заказа</b>
+              <p>{selected.completionFileId ? "Фото уже отправлялось клиенту. Можно отправить новое." : "Отправьте фото — клиент получит его в личном Telegram-чате."}</p>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,.jpg,.jpeg,.png"
+                onChange={(event) => setCompletionPhoto(event.target.files?.[0] ?? null)}
+              />
+              <button type="button" className="admin-save" disabled={!completionPhoto || sendingCompletionPhoto} onClick={sendCompletionPhoto}>
+                {sendingCompletionPhoto ? "ОТПРАВЛЯЕМ…" : "ОТПРАВИТЬ ФОТО КЛИЕНТУ"}
+              </button>
+              {photoMessage && <p className="admin-create-note" role="status">{photoMessage}</p>}
+            </div>
             {selected.totalPrice && <p><b>Стоимость:</b> {selected.totalPrice} ₽</p>}
             <label className="admin-field">Статус
               <select value={nextStatus} onChange={(event) => setNextStatus(event.target.value as OrderStatus)}>
