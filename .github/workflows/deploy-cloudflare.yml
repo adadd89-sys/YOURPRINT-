@@ -37,7 +37,7 @@ jobs:
             if [ -z "${!key}" ]; then missing+=("$key"); fi
           done
           if [ "${#missing[@]}" -gt 0 ]; then
-            printf 'Missing GitHub Actions secrets: %s\\n' "${missing[*]}"
+            echo "Missing GitHub Actions secrets: ${missing[*]}"
             exit 1
           fi
 
