@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
         select: { firstName: true, lastName: true, username: true, telegramId: true }
       },
       items: { select: { productName: true, size: true, quantity: true, notes: true } },
+      files: { select: { id: true, fileName: true, telegramFileId: true, createdAt: true } },
       statusHistory: {
         orderBy: { createdAt: "desc" },
         take: 10,
