@@ -14,14 +14,22 @@
     "build:web": "npm run build --workspace @yourprint/web",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy"
+    "db:deploy": "prisma migrate deploy",
+    "build:web:cloudflare": "opennextjs-cloudflare build",
+    "preview:web:cloudflare": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy:web:cloudflare": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "devDependencies": {
     "prisma": "^6.19.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "latest"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
-    "dotenv": "^16.6.1"
+    "dotenv": "^16.6.1",
+    "@opennextjs/cloudflare": "latest",
+    "@prisma/adapter-neon": "^6.19.0",
+    "@neondatabase/serverless": "^1.0.2"
   }
 }
