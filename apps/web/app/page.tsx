@@ -1,3 +1,5 @@
+import { TelegramSession } from "./components/TelegramSession";
+
 const services = [
   { number: "01", title: "Готовый макет", description: "У вас уже есть изображение или файл для печати." },
   { number: "02", title: "Создать дизайн", description: "Опишите идею — обсудим разработку макета." }
@@ -33,6 +35,7 @@ export default function HomePage() {
           ))}
         </div>
         <p className="coming-soon">ФОРМА ЗАКАЗА СКОРО БУДЕТ ДОСТУПНА</p>
+        <TelegramSession />
       </section>
       <footer><span>YOURPRINT</span><span>DTF • КАЧЕСТВО • ДЕТАЛИ</span></footer>
     </main>
