@@ -57,3 +57,54 @@ GitHub Actions runs on pushes and pull requests targeting `main`. It installs th
 7. Confirm the first administrator has opened the bot and started it, and each customer has started the bot before the bot attempts to message them.
 
 Do not commit production secrets or paste the bot token into chat. This repository does not yet include hosting credentials or a production deployment target; a successful CI build is a prerequisite, not proof of a live production launch.
+
+
+## Free deployment: Cloudflare Workers + Neon PostgreSQL
+
+The production target is Cloudflare Workers (free Workers plan) with Neon PostgreSQL Free for the database. The Next.js App Router is packaged with the OpenNext Cloudflare adapter. Prisma Client uses its engine-less JavaScript mode and the Neon serverless driver adapter so it can run in the Workers runtime.
+
+### Free-tier notes
+
+- Cloudflare Workers Free currently includes up to 100,000 Worker requests per day. The free CPU budget is 10 ms per request; static assets are served separately. Check current limits before launch.
+- Neon Free currently includes 100 compute-hours and 1 GB database storage per project, with 5 GB public network transfer. The database scales to zero after 5 minutes idle, so the first request after inactivity may take longer. If the free monthly compute or transfer quota is exhausted, the database can be suspended until the quota resets.
+- These are third-party free tiers, not an uptime guarantee. Monitor usage and keep independent database backups before relying on the service for business-critical orders.
+
+### One-time account setup
+
+1. Create a free Cloudflare account and enable the `workers.dev` subdomain.
+2. Create a free PostgreSQL project in Neon. Copy its PostgreSQL connection string. Keep the string private; use the direct connection string for Prisma migrations.
+3. In Cloudflare, create an API token with permission to deploy Workers scripts for the account. Copy the account ID from the Cloudflare dashboard.
+4. In the GitHub repository settings, open **Settings → Secrets and variables → Actions** and add these repository secrets:
+   - `CLOUDFLARE_API_TOKEN`
+   - `CLOUDFLARE_ACCOUNT_ID`
+   - `DATABASE_URL` (Neon PostgreSQL connection string)
+   - `TELEGRAM_BOT_TOKEN`
+   - `TELEGRAM_WEBHOOK_SECRET` (a random secret string; use letters, digits, underscores or hyphens)
+   - `ADMIN_TELEGRAM_IDS` (comma-separated numeric Telegram IDs)
+5. Open **Actions → Deploy YOURPRINT to Cloudflare Workers → Run workflow**. The workflow installs dependencies, applies Prisma migrations to Neon, builds the Worker and deploys it with the secrets.
+6. In Cloudflare Workers, open the deployed `yourprint` Worker and copy its `workers.dev` URL.
+7. Register the Telegram webhook. Run this from a terminal with your bot token and webhook secret substituted locally (do not commit them):
+   ```bash
+   curl -X POST "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook" \
+     --data-urlencode "url=https://yourprint.<YOUR_WORKERS_SUBDOMAIN>.workers.dev/api/telegram/webhook" \
+     --data-urlencode "secret_token=<TELEGRAM_WEBHOOK_SECRET>"
+   ```
+8. Open the bot and send `/start`. The webhook replies with the Mini App button using the URL that received the update. The production bot uses Telegram webhooks; do not run the local long-polling `dev:bot` process against the same bot token while the webhook is active.
+
+The Mini App URL is inferred from the incoming webhook host by default. If you later attach a custom domain, register the webhook using that domain so the button points to it.
+
+### Local Cloudflare preview
+
+Copy `.dev.vars.example` to `.dev.vars`, fill in local values, then run:
+
+```bash
+npm install
+npm run db:generate
+npm run preview:web:cloudflare
+```
+
+Do not commit `.dev.vars`, production secrets, or generated secret files.
+
+### Current deployment state
+
+Cloudflare configuration, the production deployment workflow, Neon-compatible Prisma setup, and Telegram webhook endpoint are committed. The Worker is **not deployed yet**: deployment requires the owner's Cloudflare account token/account ID, a Neon database connection string, the Telegram bot token, webhook secret and administrator IDs. These credentials must be entered into GitHub Actions Secrets by the account owner. A successful GitHub deployment and a real Telegram order test are still required before accepting customer orders.
