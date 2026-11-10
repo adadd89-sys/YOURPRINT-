@@ -75,6 +75,11 @@ export async function POST(
   }
 
   const saved = await prisma.$transaction(async (tx) => {
+    if (order.completionFileId) {
+      await tx.orderFile.deleteMany({
+        where: { id: order.completionFileId, orderId: order.id }
+      });
+    }
     const file = await tx.orderFile.create({
       data: {
         orderId: order.id,
