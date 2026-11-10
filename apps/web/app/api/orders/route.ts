@@ -136,19 +136,20 @@ export async function POST(request: NextRequest) {
     appliedPromo = { id: candidate.id, code: candidate.code, discountPct: candidate.discountPct, usageLimit: candidate.usageLimit };
   }
 
+  const promoToApply = appliedPromo;
   let order;
   try {
     order = await prisma.$transaction(async (tx) => {
-      if (appliedPromo) {
+      if (promoToApply) {
         const now = new Date();
         const claimed = await tx.promoCode.updateMany({
           where: {
-            id: appliedPromo.id,
+            id: promoToApply.id,
             isActive: true,
             AND: [
               { OR: [{ startsAt: null }, { startsAt: { lte: now } }] },
               { OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] },
-              { OR: [{ usageLimit: null }, { usageCount: { lt: appliedPromo.usageLimit ?? 2147483647 } }] }
+              { OR: [{ usageLimit: null }, { usageCount: { lt: promoToApply.usageLimit ?? 2147483647 } }] }
             ]
           },
           data: { usageCount: { increment: 1 } }
@@ -160,7 +161,7 @@ export async function POST(request: NextRequest) {
           customerId: user.id,
           artworkType: artworkType as "READY" | "CREATE_NEW",
           description: description || null,
-          ...(appliedPromo ? { promoCodeId: appliedPromo.id } : {}),
+          ...(promoToApply ? { promoCodeId: promoToApply.id } : {}),
           items: { create: { productName: productName.trim(), size, quantity } },
           statusHistory: { create: { toStatus: "NEW", comment: "Заказ создан клиентом" } }
         },
