@@ -187,7 +187,7 @@ export async function POST(request: NextRequest) {
   const artworkType = body.artworkType;
   const description = typeof body.description === "string" ? body.description.trim().slice(0, 1500) : "";
 
-  if (!/^\d{5,20}$/.test(telegramId)) {
+  if (!/^\d{5,20}$/.test(telegramId) || BigInt(telegramId || "0") > 9223372036854775807n) {
     return NextResponse.json({ error: "Укажите корректный числовой Telegram ID клиента." }, { status: 400 });
   }
   if (typeof artworkType !== "string" || !["READY", "CREATE_NEW"].includes(artworkType)) {
