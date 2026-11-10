@@ -77,6 +77,8 @@ export async function POST(request: NextRequest) {
   const size = form.get("size");
   const quantity = Number(form.get("quantity"));
   const descriptionValue = form.get("description");
+  const promoCodeValue = form.get("promoCode");
+  const promoCode = typeof promoCodeValue === "string" ? promoCodeValue.trim().toUpperCase() : "";
 
   if (typeof artworkType !== "string" || !artworkTypes.has(artworkType)) {
     return NextResponse.json({ error: "Выберите вариант макета." }, { status: 400 });
@@ -121,16 +123,56 @@ export async function POST(request: NextRequest) {
     }
   });
 
-  const order = await prisma.order.create({
-    data: {
-      customerId: user.id,
-      artworkType: artworkType as "READY" | "CREATE_NEW",
-      description: description || null,
-      items: { create: { productName: productName.trim(), size, quantity } },
-      statusHistory: { create: { toStatus: "NEW", comment: "Заказ создан клиентом" } }
-    },
-    include: { items: true }
-  });
+  let appliedPromo: { id: string; code: string; discountPct: number; usageLimit: number | null } | null = null;
+  if (promoCode) {
+    const candidate = await prisma.promoCode.findUnique({ where: { code: promoCode } });
+    const now = new Date();
+    if (!candidate || !candidate.isActive ||
+      (candidate.startsAt && candidate.startsAt > now) ||
+      (candidate.expiresAt && candidate.expiresAt <= now) ||
+      (candidate.usageLimit !== null && candidate.usageCount >= candidate.usageLimit)) {
+      return NextResponse.json({ error: "Промокод недействителен, истёк или исчерпал лимит использований." }, { status: 400 });
+    }
+    appliedPromo = { id: candidate.id, code: candidate.code, discountPct: candidate.discountPct, usageLimit: candidate.usageLimit };
+  }
+
+  let order;
+  try {
+    order = await prisma.$transaction(async (tx) => {
+      if (appliedPromo) {
+        const now = new Date();
+        const claimed = await tx.promoCode.updateMany({
+          where: {
+            id: appliedPromo.id,
+            isActive: true,
+            AND: [
+              { OR: [{ startsAt: null }, { startsAt: { lte: now } }] },
+              { OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] },
+              { OR: [{ usageLimit: null }, { usageCount: { lt: appliedPromo.usageLimit ?? 2147483647 } }] }
+            ]
+          },
+          data: { usageCount: { increment: 1 } }
+        });
+        if (claimed.count !== 1) throw new Error("PROMO_UNAVAILABLE");
+      }
+      return tx.order.create({
+        data: {
+          customerId: user.id,
+          artworkType: artworkType as "READY" | "CREATE_NEW",
+          description: description || null,
+          ...(appliedPromo ? { promoCodeId: appliedPromo.id } : {}),
+          items: { create: { productName: productName.trim(), size, quantity } },
+          statusHistory: { create: { toStatus: "NEW", comment: "Заказ создан клиентом" } }
+        },
+        include: { items: true }
+      });
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === "PROMO_UNAVAILABLE") {
+      return NextResponse.json({ error: "Промокод только что закончился или достиг лимита использований. Попробуйте другой." }, { status: 409 });
+    }
+    throw error;
+  }
 
   const adminIds = [...new Set((process.env.ADMIN_TELEGRAM_IDS ?? "")
     .split(",").map((value) => value.trim()).filter(Boolean))];
@@ -143,6 +185,7 @@ export async function POST(request: NextRequest) {
     `Изделие: ${productName.trim()}`,
     `Размер: ${size}`,
     `Количество: ${quantity}`,
+    appliedPromo ? `Промокод: ${appliedPromo.code} · скидка ${appliedPromo.discountPct}%` : "",
     files.length ? `Прикреплено файлов: ${files.length} (файлы придут отдельными сообщениями)` : "Файлы не приложены",
     description ? `Комментарий: ${description}` : ""
   ].filter(Boolean).join("\n");
@@ -177,6 +220,7 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     order: { number: order.number, status: order.status },
+    promo: appliedPromo ? { code: appliedPromo.code, discountPct: appliedPromo.discountPct } : null,
     files: { attached: files.length, delivered: deliveredFiles },
     warning: files.length > deliveredFiles
       ? "Заказ создан, но не все файлы удалось передать администраторам. Напишите нам в Telegram и укажите номер заказа."
