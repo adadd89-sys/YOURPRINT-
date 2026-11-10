@@ -1,0 +1,10 @@
+{
+  "name": "yourprint",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Telegram bot and Mini App for DTF printing orders",
+  "scripts": {
+    "dev": "echo \"Development scripts will be configured with the selected stack\"",
+    "test": "echo \"No tests configured yet\""
+  }
+}
