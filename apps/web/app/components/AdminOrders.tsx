@@ -20,6 +20,7 @@ type Order = {
   createdAt: string;
   customer: { firstName: string | null; lastName: string | null; username: string | null; telegramId: string };
   items: { productName: string; size: string; quantity: number; notes: string | null }[];
+  files: { id: string; fileName: string; telegramFileId: string | null; createdAt: string }[];
   statusHistory: { fromStatus: OrderStatus | null; toStatus: OrderStatus; comment: string | null; createdAt: string }[];
 };
 
@@ -146,6 +147,7 @@ export function AdminOrders() {
             <p><b>Макет:</b> {selected.artworkType === "READY" ? "Готовый" : "Разработка нового дизайна"}</p>
             {selected.items.map((item, index) => <p key={index}><b>Изделие:</b> {item.productName}, размер {item.size}, {item.quantity} шт.</p>)}
             {selected.description && <p><b>Комментарий:</b> {selected.description}</p>}
+            <div className="admin-files"><b>Файлы макета ({selected.files.length}):</b>{selected.files.length === 0 ? <p>Файлы не прикреплены.</p> : selected.files.map((file) => <p key={file.id}>📎 {file.fileName}{file.telegramFileId ? " · отправлен в Telegram" : " · не удалось передать в Telegram"}</p>)}</div>
             {selected.totalPrice && <p><b>Стоимость:</b> {selected.totalPrice} ₽</p>}
             <label className="admin-field">Статус
               <select value={nextStatus} onChange={(event) => setNextStatus(event.target.value as OrderStatus)}>
