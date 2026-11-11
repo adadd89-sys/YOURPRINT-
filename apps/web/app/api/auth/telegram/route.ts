@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Не удалось получить данные Telegram." }, { status: 400 });
   }
 
-  const telegramUser = validateTelegramInitData(body.initData, botToken);
+  const telegramUser = await validateTelegramInitData(body.initData, botToken);
   if (!telegramUser) {
     return NextResponse.json({ error: "Не удалось подтвердить аккаунт Telegram. Откройте приложение заново." }, { status: 401 });
   }
