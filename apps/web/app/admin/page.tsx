@@ -15,6 +15,7 @@ declare global {
 export default function AdminPage() {
   const [access, setAccess] = useState<AccessState>("loading");
   const [errorMessage, setErrorMessage] = useState("");
+  const [activeTab, setActiveTab] = useState<"orders" | "promos">("orders");
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
@@ -63,8 +64,11 @@ export default function AdminPage() {
         <a className="logo" href="/">YOURPRINT<span>.</span></a>
         <span className="topbar-note">ADMIN PANEL</span>
       </header>
-      <AdminOrders />
-      <AdminPromoCodes />
+      <nav className="admin-tabs" aria-label="Разделы администрирования">
+        <button type="button" className={activeTab === "orders" ? "admin-tab active" : "admin-tab"} onClick={() => setActiveTab("orders")}>📋 Заказы</button>
+        <button type="button" className={activeTab === "promos" ? "admin-tab active" : "admin-tab"} onClick={() => setActiveTab("promos")}>🏷 Промокоды</button>
+      </nav>
+      {activeTab === "orders" ? <AdminOrders /> : <AdminPromoCodes />}
     </main>
   );
 }
