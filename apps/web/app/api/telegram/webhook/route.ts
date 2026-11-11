@@ -5,6 +5,7 @@ export const runtime = "nodejs";
 type TelegramUpdate = {
   message?: {
     text?: string;
+    from?: { id: number };
     chat?: { id: number; type?: string };
   };
 };
@@ -22,18 +23,19 @@ async function sendTelegramMessage(
   token: string,
   chatId: number,
   text: string,
-  miniAppUrl?: string
+  miniAppUrl?: string,
+  buttonText = "Открыть YOURPRINT"
 ) {
   const replyMarkup = miniAppUrl
     ? {
         inline_keyboard: [[{
-          text: "Открыть YOURPRINT",
+          text: buttonText,
           web_app: { url: miniAppUrl }
         }]]
       }
     : undefined;
 
-  const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+  const response = await fetch(\`https://api.telegram.org/bot\${token}/sendMessage\`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -45,7 +47,7 @@ async function sendTelegramMessage(
 
   if (!response.ok) {
     const details = await response.text().catch(() => "");
-    throw new Error(`Telegram sendMessage failed: ${response.status} ${details.slice(0, 300)}`);
+    throw new Error(\`Telegram sendMessage failed: \${response.status} \${details.slice(0, 300)}\`);
   }
 }
 
@@ -74,21 +76,44 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const command = text.split(/\\s+/, 1)[0].split("@", 1)[0];
+  const command = text.split(/\s+/, 1)[0].split("@", 1)[0];
+  const miniAppBaseUrl = process.env.MINI_APP_URL || request.nextUrl.origin;
+
   if (command === "/start") {
     await sendTelegramMessage(
       token,
       chatId,
       "Добро пожаловать в YOURPRINT!\\n\\nЗдесь можно оформить заказ на DTF-печать, выбрать готовый макет или заказать разработку дизайна.",
-      process.env.MINI_APP_URL || request.nextUrl.origin
+      miniAppBaseUrl
     );
   } else if (command === "/help") {
     await sendTelegramMessage(
       token,
       chatId,
       "Чтобы оформить заказ, нажмите «Открыть YOURPRINT» в сообщении бота. По вопросам заказа можно написать администратору.",
-      process.env.MINI_APP_URL || request.nextUrl.origin
+      miniAppBaseUrl
     );
+  } else if (command === "/admin") {
+    const allowedIds = new Set(
+      (process.env.ADMIN_TELEGRAM_IDS ?? "")
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean)
+    );
+    const telegramUserId = message.from?.id;
+
+    if (!telegramUserId || !allowedIds.has(String(telegramUserId))) {
+      await sendTelegramMessage(token, chatId, "У вас нет доступа к административной панели.");
+    } else {
+      const adminUrl = new URL("/admin", miniAppBaseUrl).toString();
+      await sendTelegramMessage(
+        token,
+        chatId,
+        "Вход в административную панель YOURPRINT.",
+        adminUrl,
+        "Открыть админ-панель"
+      );
+    }
   }
 
   return NextResponse.json({ ok: true });
