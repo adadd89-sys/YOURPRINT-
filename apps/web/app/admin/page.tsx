@@ -33,9 +33,19 @@ export default function AdminPage() {
       body: JSON.stringify({ initData })
     })
       .then(async (response) => {
-        const data = await response.json().catch(() => ({}));
+        const raw = await response.text();
+        let data: { error?: unknown; isAdmin?: boolean } = {};
+        try {
+          data = raw ? JSON.parse(raw) as { error?: unknown; isAdmin?: boolean } : {};
+        } catch {
+          // Preserve a short, sanitized response preview when the Worker returns
+          // an HTML/runtime error instead of the expected JSON payload.
+        }
         if (!response.ok) {
-          throw new Error(typeof data.error === "string" ? String(response.status) + ": " + data.error : "HTTP " + response.status);
+          const detail = typeof data.error === "string"
+            ? data.error
+            : raw.replace(/<[^>]*>/g, " ").replace(/\\s+/g, " ").trim().slice(0, 240);
+          throw new Error(detail ? String(response.status) + ": " + detail : "HTTP " + response.status);
         }
         return data as { isAdmin: boolean };
       })
