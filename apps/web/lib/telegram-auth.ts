@@ -1,5 +1,3 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
-
 export type TelegramWebAppUser = {
   id: number;
   first_name: string;
@@ -7,7 +5,21 @@ export type TelegramWebAppUser = {
   username?: string;
 };
 
-export function validateTelegramInitData(initData: string, botToken: string): TelegramWebAppUser | null {
+async function hmacSha256(keyBytes: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyBytes,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  return new Uint8Array(await crypto.subtle.sign("HMAC", key, data));
+}
+
+export async function validateTelegramInitData(
+  initData: string,
+  botToken: string
+): Promise<TelegramWebAppUser | null> {
   const params = new URLSearchParams(initData);
   const receivedHash = params.get("hash");
 
@@ -23,13 +35,23 @@ export function validateTelegramInitData(initData: string, botToken: string): Te
     .map(([key, value]) => `${key}=${value}`)
     .join("\n");
 
-  const secretKey = createHmac("sha256", "WebAppData").update(botToken).digest();
-  const calculatedHash = createHmac("sha256", secretKey).update(dataCheckString).digest();
-  const suppliedHash = Buffer.from(receivedHash, "hex");
+  const encoder = new TextEncoder();
+  const secretKey = await hmacSha256(
+    encoder.encode("WebAppData"),
+    encoder.encode(botToken)
+  );
+  const calculatedHash = await hmacSha256(
+    secretKey,
+    encoder.encode(dataCheckString)
+  );
+  const calculatedHex = Array.from(calculatedHash, byte => byte.toString(16).padStart(2, "0")).join("");
 
-  if (suppliedHash.length !== calculatedHash.length || !timingSafeEqual(suppliedHash, calculatedHash)) {
-    return null;
+  // Compare without Node.js Buffer or node:crypto dependencies in the Worker runtime.
+  let mismatch = 0;
+  for (let index = 0; index < calculatedHex.length; index += 1) {
+    mismatch |= calculatedHex.charCodeAt(index) ^ receivedHash.toLowerCase().charCodeAt(index);
   }
+  if (mismatch !== 0) return null;
 
   const rawUser = params.get("user");
   if (!rawUser) return null;
