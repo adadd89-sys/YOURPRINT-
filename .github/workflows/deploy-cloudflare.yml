@@ -26,7 +26,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Check required secrets
         shell: bash
@@ -47,15 +47,15 @@ jobs:
       - name: Generate Prisma Client
         run: npm run db:generate
 
-      - name: Apply production database migrations
-        run: npm run db:deploy
-
       - name: Build Cloudflare Worker
         run: npm run build:web:cloudflare
+
+      - name: Apply production database migrations
+        run: npm run db:deploy
 
       - name: Deploy Worker with production secrets
         shell: bash
         run: |
           node -e 'const fs=require("fs"); const keys=["DATABASE_URL","TELEGRAM_BOT_TOKEN","TELEGRAM_WEBHOOK_SECRET","ADMIN_TELEGRAM_IDS"]; const out={}; for (const key of keys) out[key]=process.env[key]; fs.writeFileSync(".cloudflare-secrets.json", JSON.stringify(out));'
-          npx wrangler deploy --secrets-file .cloudflare-secrets.json
+          npx wrangler deploy --config apps/web/wrangler.jsonc --secrets-file .cloudflare-secrets.json
           rm -f .cloudflare-secrets.json
