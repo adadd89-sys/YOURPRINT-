@@ -35,7 +35,7 @@ async function sendTelegramMessage(
       }
     : undefined;
 
-  const response = await fetch(\`https://api.telegram.org/bot\${token}/sendMessage\`, {
+  const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -47,7 +47,7 @@ async function sendTelegramMessage(
 
   if (!response.ok) {
     const details = await response.text().catch(() => "");
-    throw new Error(\`Telegram sendMessage failed: \${response.status} \${details.slice(0, 300)}\`);
+    throw new Error(`Telegram sendMessage failed: ${response.status} ${details.slice(0, 300)}`);
   }
 }
 
