@@ -63,6 +63,29 @@ jobs:
           trap 'rm -f .cloudflare-secrets.json' EXIT
           npx wrangler deploy --config apps/web/wrangler.jsonc --secrets-file .cloudflare-secrets.json
 
+      - name: Smoke test Telegram auth route
+        shell: bash
+        run: |
+          set -euo pipefail
+          response_file="$(mktemp)"
+          status="$(curl -sS -o "$response_file" -w '%{http_code}' \
+            -X POST "https://yourprint.sergey-adadd89.workers.dev/api/auth/telegram" \
+            -H "content-type: application/json" \
+            --data '{"initData":"deployment-smoke-test-invalid"}')"
+          body="$(cat "$response_file")"
+          rm -f "$response_file"
+          if [ "$status" != "401" ]; then
+            echo "Telegram auth smoke test failed: HTTP $status"
+            printf '%s\n' "$body" | head -c 1200
+            exit 1
+          fi
+          if ! printf '%s' "$body" | grep -q 'Не удалось подтвердить аккаунт Telegram'; then
+            echo "Telegram auth smoke test returned unexpected JSON:"
+            printf '%s\n' "$body" | head -c 1200
+            exit 1
+          fi
+          echo "Telegram auth route is responding with the expected JSON 401."
+          
       - name: Register Telegram webhook through Cloudflare
         shell: bash
         run: |
