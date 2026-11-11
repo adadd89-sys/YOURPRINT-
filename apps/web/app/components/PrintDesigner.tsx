@@ -101,7 +101,7 @@ export function PrintDesigner() {
               )}
               <path d="M87 149 87 304 Q160 321 233 304 L233 149" className="garment-line" />
             </svg>
-            {previewUrl ? <img className="designer-artwork" src={previewUrl} alt="Предпросмотр принта" style={{ width: scale + "%", top: position + "%", left: placement === "Слева на груди" ? "40%" : placement === "На рукаве" ? "24%" : "50%" }} /> : <div className="designer-placeholder">ТВОЙ<br/>ДИЗАЙН</div>}
+            {previewUrl ? <img className="designer-artwork" src={previewUrl} alt="Предпросмотр принта" style={{ width: scale + "%", maxWidth: "75%", top: position + "%", left: placement === "Слева на груди" ? "40%" : placement === "На рукаве" ? "24%" : "50%" }} /> : <div className="designer-placeholder">ТВОЙ<br/>ДИЗАЙН</div>}
             <span className="preview-label">ПРЕДВАРИТЕЛЬНЫЙ ВИД</span>
           </div>
           <p className="designer-preview-note">Предпросмотр схематичный. Итоговый размер и размещение согласуем перед печатью.</p>
