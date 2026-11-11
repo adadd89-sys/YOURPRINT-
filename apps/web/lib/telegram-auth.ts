@@ -5,15 +5,21 @@ export type TelegramWebAppUser = {
   username?: string;
 };
 
+function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  const copy = new Uint8Array(bytes.byteLength);
+  copy.set(bytes);
+  return copy.buffer;
+}
+
 async function hmacSha256(keyBytes: Uint8Array, data: Uint8Array): Promise<Uint8Array> {
   const key = await crypto.subtle.importKey(
     "raw",
-    keyBytes,
+    toArrayBuffer(keyBytes),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"]
   );
-  return new Uint8Array(await crypto.subtle.sign("HMAC", key, data));
+  return new Uint8Array(await crypto.subtle.sign("HMAC", key, toArrayBuffer(data)));
 }
 
 export async function validateTelegramInitData(
