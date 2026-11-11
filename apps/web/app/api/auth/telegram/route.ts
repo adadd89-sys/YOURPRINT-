@@ -26,21 +26,36 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Не удалось подтвердить аккаунт Telegram. Откройте приложение заново." }, { status: 401 });
   }
 
-  const user = await prisma.user.upsert({
-    where: { telegramId: BigInt(telegramUser.id) },
-    create: {
-      telegramId: BigInt(telegramUser.id),
-      username: telegramUser.username,
-      firstName: telegramUser.first_name,
-      lastName: telegramUser.last_name
-    },
-    update: {
-      username: telegramUser.username,
-      firstName: telegramUser.first_name,
-      lastName: telegramUser.last_name
-    },
-    select: { id: true, firstName: true, role: true }
-  });
+  let user;
+  try {
+    user = await prisma.user.upsert({
+      where: { telegramId: BigInt(telegramUser.id) },
+      create: {
+        telegramId: BigInt(telegramUser.id),
+        username: telegramUser.username,
+        firstName: telegramUser.first_name,
+        lastName: telegramUser.last_name
+      },
+      update: {
+        username: telegramUser.username,
+        firstName: telegramUser.first_name,
+        lastName: telegramUser.last_name
+      },
+      select: { id: true, firstName: true, role: true }
+    });
+  } catch (error) {
+    const details = error && typeof error === "object"
+      ? error as { code?: unknown; name?: unknown }
+      : {};
+    const diagnostic = typeof details.code === "string"
+      ? details.code
+      : typeof details.name === "string" ? details.name : "UNKNOWN";
+    console.error("[telegram-auth] user upsert failed", error);
+    return NextResponse.json(
+      { error: `Ошибка базы данных: ${diagnostic}` },
+      { status: 500 }
+    );
+  }
 
   const allowedIds = new Set(
     (process.env.ADMIN_TELEGRAM_IDS ?? "")
