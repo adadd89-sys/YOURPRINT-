@@ -19,6 +19,7 @@ type SessionState = "loading" | "ready" | "outside" | "error";
 export function TelegramSession() {
   const [state, setState] = useState<SessionState>("loading");
   const [firstName, setFirstName] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
@@ -39,8 +40,9 @@ export function TelegramSession() {
         if (!response.ok) throw new Error("Telegram auth failed");
         return response.json();
       })
-      .then((data: { user: { firstName: string | null } }) => {
+      .then((data: { user: { firstName: string | null }; isAdmin: boolean }) => {
         setFirstName(data.user.firstName ?? "");
+        setIsAdmin(data.isAdmin === true);
         setState("ready");
       })
       .catch(() => setState("error"));
@@ -50,5 +52,10 @@ export function TelegramSession() {
   if (state === "outside") return <p className="session-note">ОТКРОЙТЕ MINI APP ЧЕРЕЗ TELEGRAM</p>;
   if (state === "error") return <p className="session-note">НЕ УДАЛОСЬ ПОДТВЕРДИТЬ TELEGRAM. ПЕРЕОТКРОЙТЕ ПРИЛОЖЕНИЕ.</p>;
 
-  return <p className="session-note">ВЫ В СИСТЕМЕ{firstName ? `, ${firstName.toUpperCase()}` : ""}</p>;
+  return (
+    <div className="session-bar">
+      <p className="session-note">ВЫ В СИСТЕМЕ{firstName ? `, ${firstName.toUpperCase()}` : ""}</p>
+      {isAdmin && <a className="admin-entry" href="/admin">⚙ Админ-панель</a>}
+    </div>
+  );
 }
