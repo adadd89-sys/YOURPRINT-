@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validateTelegramInitData } from "../../../../lib/telegram-auth";
 
 export const runtime = "nodejs";
 
@@ -22,7 +21,7 @@ export async function POST(request: NextRequest) {
 
   let telegramUser;
   try {
-    telegramUser = await validateTelegramInitData(body.initData, botToken);
+    // Load the validator inside the guarded block so module initialization errors\n    // are returned as JSON diagnostics instead of escaping the Worker handler.\n    const { validateTelegramInitData } = await import("../../../../lib/telegram-auth");\n    telegramUser = await validateTelegramInitData(body.initData, botToken);
   } catch (error) {
     const details = error && typeof error === "object"
       ? error as { code?: unknown; name?: unknown }
