@@ -1,10 +1,9 @@
 import { TelegramSession } from "./components/TelegramSession";
 import { OrderForm } from "./components/OrderForm";
 import { CustomerAccount } from "./components/CustomerAccount";
-import { PrintDesigner } from "./components/PrintDesigner";
 
 const sections = [
-  { number: "01", icon: "✳", title: "Создать свой принт", description: "Загрузи картинку и размести её на одежде", href: "#designer", featured: true },
+  { number: "01", icon: "✳", title: "Конструктор принта", description: "Загрузи изображение и настрой его на одежде", href: "/designer" },
   { number: "02", icon: "↗", title: "Оформить заказ", description: "Отправь готовый макет или опиши идею", href: "#order" },
   { number: "03", icon: "▤", title: "Мои заказы", description: "Статусы, детали и история заказов", href: "#account" },
   { number: "04", icon: "?", title: "Как это работает", description: "От идеи до готовой вещи — в несколько шагов", href: "#how-it-works" }
@@ -38,7 +37,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <PrintDesigner />
       <CustomerAccount />
       <div id="order"><OrderForm /></div>
       <section className="how-section" id="how-it-works">
