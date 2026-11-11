@@ -2,12 +2,6 @@
 
 import { FormEvent, useState } from "react";
 
-declare global {
-  interface Window {
-    Telegram?: { WebApp?: { initData: string } };
-  }
-}
-
 const sizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL", "Universal"];
 const acceptedExtensions = [".png", ".jpg", ".jpeg", ".webp", ".pdf", ".svg", ".tif", ".tiff", ".psd", ".ai"];
 const maxFileSize = 15 * 1024 * 1024;
