@@ -27,7 +27,7 @@ export default function HomePage() {
         <div className="hub-heading"><span className="section-kicker">YOURPRINT / МЕНЮ</span><h2>Что будем делать?</h2></div>
         <div className="hub-grid">
           {sections.map((section) => (
-            <a className={section.featured ? "hub-card featured" : "hub-card"} href={section.href} key={section.number}>
+            <a className="hub-card" href={section.href} key={section.number}>
               <span className="hub-card-top"><b>{section.icon}</b></span>
               <strong>{section.title}</strong>
               <small>{section.description}</small>
