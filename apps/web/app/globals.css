@@ -674,3 +674,33 @@ footer { padding: 15px 0; }
   .order-form { padding: 16px 12px; gap: 13px; }
   .choice-grid { grid-template-columns: 1fr 1fr; }
 }
+
+
+/* Strelok-style compact admin navigation */
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 18px;
+  padding: 5px;
+  background: #111;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+.admin-tab {
+  flex: 1;
+  min-height: 38px;
+  padding: 8px 10px;
+  color: #aaa;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.admin-tab.active {
+  color: #fff;
+  background: #242424;
+  border-color: #555;
+}
