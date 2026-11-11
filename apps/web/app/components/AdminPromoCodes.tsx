@@ -42,7 +42,7 @@ export function AdminPromoCodes() {
   }, []);
 
   useEffect(() => {
-    const data = window.Telegram?.WebApp?.initData;
+    const data = window.Telegram?.WebApp?.initData || sessionStorage.getItem("yourprint_telegram_init_data") || "";
     if (!data) {
       setError("Откройте админ-панель через Telegram Mini App.");
       setLoading(false);
