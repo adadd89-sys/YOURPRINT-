@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validateTelegramInitData } from "../../../lib/telegram-auth";
+import { validateTelegramInitDataDetailed } from "../../../lib/telegram-auth";
 
 export const runtime = "nodejs";
 
-// Структура как в «Стрелке»: отдельная проверка /api/admin,
-// без подключения базы заказов на этапе определения доступа.
 export async function GET(request: NextRequest) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const allowedIds = new Set(
@@ -23,19 +21,22 @@ export async function GET(request: NextRequest) {
 
   const initData = request.headers.get("x-telegram-init-data") ?? "";
   if (!initData) {
-    return NextResponse.json({ isAdmin: false, role: null, error: "Требуется авторизация Telegram." }, { status: 401 });
+    return NextResponse.json({ isAdmin: false, role: null, error: "Telegram WebApp не передал initData. Откройте Mini App через меню бота." }, { status: 401 });
   }
 
   try {
-    const user = await validateTelegramInitData(initData, token);
-    if (!user) {
-      return NextResponse.json({ isAdmin: false, role: null, error: "Не удалось подтвердить Telegram." }, { status: 401 });
+    const validation = await validateTelegramInitDataDetailed(initData, token);
+    if (!validation.user) {
+      return NextResponse.json(
+        { isAdmin: false, role: null, error: validation.reason || "Не удалось подтвердить Telegram." },
+        { status: 401 }
+      );
     }
 
-    const role = allowedIds.has(String(user.id)) ? "owner" : null;
+    const role = allowedIds.has(String(validation.user.id)) ? "owner" : null;
     return NextResponse.json({ isAdmin: Boolean(role), role });
   } catch (error) {
     console.error("[admin-access] Telegram validation failed", error);
-    return NextResponse.json({ isAdmin: false, role: null, error: "Ошибка проверки Telegram." }, { status: 500 });
+    return NextResponse.json({ isAdmin: false, role: null, error: "Внутренняя ошибка проверки Telegram." }, { status: 500 });
   }
 }
