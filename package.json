@@ -15,7 +15,7 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "build:web:cloudflare": "opennextjs-cloudflare build",
+    "build:web:cloudflare": "npm run build:cloudflare --workspace @yourprint/web",
     "preview:web:cloudflare": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy:web:cloudflare": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
