@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 declare global {
   interface Window {
@@ -55,7 +56,7 @@ export function TelegramSession() {
   return (
     <div className="session-bar">
       <p className="session-note">ВЫ В СИСТЕМЕ{firstName ? `, ${firstName.toUpperCase()}` : ""}</p>
-      {isAdmin && <a className="admin-entry" href="/admin">⚙ Админ-панель</a>}
+      {isAdmin && <Link className="admin-entry" href="/admin">⚙ Админ-панель</Link>}
     </div>
   );
 }
