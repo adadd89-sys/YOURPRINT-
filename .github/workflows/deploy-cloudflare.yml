@@ -82,7 +82,7 @@ jobs:
             printf '%s\n' "$body" | head -c 1200
             exit 1
           fi
-          if ! printf '%s' "$body" | grep -q 'Не удалось подтвердить аккаунт Telegram'; then
+          if ! printf '%s' "$body" | grep -q 'initData отсутствует hash'; then
             echo "Telegram auth smoke test returned unexpected JSON:"
             printf '%s\n' "$body" | head -c 1200
             exit 1
