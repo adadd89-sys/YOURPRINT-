@@ -31,6 +31,8 @@ export function TelegramSession() {
 
     webApp.ready();
     webApp.expand();
+    // Keep the signed Telegram session available during Mini App client-side navigation.
+    sessionStorage.setItem("yourprint_telegram_init_data", webApp.initData);
 
     fetch("/api/auth/telegram", {
       method: "POST",
