@@ -19,7 +19,6 @@ type SessionState = "loading" | "ready" | "outside" | "error";
 
 export function TelegramSession() {
   const [state, setState] = useState<SessionState>("loading");
-  const [firstName, setFirstName] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -50,7 +49,6 @@ export function TelegramSession() {
       })
       .then((data) => {
         setIsAdmin(data.isAdmin === true);
-        setFirstName(webApp?.initData ? (window.Telegram?.WebApp ? "ПОЛЬЗОВАТЕЛЬ" : "") : "");
         setState("ready");
       })
       .catch(() => setState("error"));
@@ -62,7 +60,6 @@ export function TelegramSession() {
 
   return (
     <div className="session-bar">
-      {firstName && <p className="session-note">ВЫ В СИСТЕМЕ</p>}
       {isAdmin && <Link className="admin-entry" href="/admin">⚙ Администрирование</Link>}
     </div>
   );
