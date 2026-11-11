@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-export async function POST(request: NextRequest) {
+async function handlePost(request: NextRequest) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   if (!botToken) {
     return NextResponse.json({ error: "Сервер ещё не настроен." }, { status: 503 });
@@ -91,4 +91,23 @@ export async function POST(request: NextRequest) {
     user: { id: user.id, firstName: user.firstName },
     isAdmin: allowedIds.has(String(telegramUser.id))
   });
+}
+
+
+export async function POST(request: NextRequest) {
+  try {
+    return await handlePost(request);
+  } catch (error) {
+    const details = error && typeof error === "object"
+      ? error as { code?: unknown; name?: unknown }
+      : {};
+    const diagnostic = typeof details.code === "string"
+      ? details.code
+      : typeof details.name === "string" ? details.name : "UNKNOWN";
+    console.error("[telegram-auth] unhandled route exception", error);
+    return NextResponse.json(
+      { error: `AUTH_HANDLER_EXCEPTION:${diagnostic}` },
+      { status: 500 }
+    );
+  }
 }
