@@ -27,27 +27,15 @@ export default function AdminPage() {
     webApp?.ready();
     webApp?.expand();
 
-    fetch("/api/auth/telegram", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ initData })
+    fetch("/api/admin", {
+      method: "GET",
+      headers: { "x-telegram-init-data": initData },
+      cache: "no-store"
     })
       .then(async (response) => {
-        const raw = await response.text();
-        let data: { error?: unknown; isAdmin?: boolean } = {};
-        try {
-          data = raw ? JSON.parse(raw) as { error?: unknown; isAdmin?: boolean } : {};
-        } catch {
-          // Preserve a short, sanitized response preview when the Worker returns
-          // an HTML/runtime error instead of the expected JSON payload.
-        }
-        if (!response.ok) {
-          const detail = typeof data.error === "string"
-            ? data.error
-            : raw.replace(/<[^>]*>/g, " ").replace(/\\s+/g, " ").trim().slice(0, 240);
-          throw new Error(detail ? String(response.status) + ": " + detail : "HTTP " + response.status);
-        }
-        return data as { isAdmin: boolean };
+        const data = await response.json() as { isAdmin?: boolean; error?: string };
+        if (!response.ok) throw new Error(data.error || "HTTP " + response.status);
+        return data;
       })
       .then((data) => setAccess(data.isAdmin ? "allowed" : "denied"))
       .catch((error: unknown) => {
