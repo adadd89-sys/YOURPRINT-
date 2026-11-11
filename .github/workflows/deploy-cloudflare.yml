@@ -56,6 +56,9 @@ jobs:
       - name: Deploy Worker with production secrets
         shell: bash
         run: |
-          node -e 'const fs=require("fs"); const keys=["DATABASE_URL","TELEGRAM_BOT_TOKEN","TELEGRAM_WEBHOOK_SECRET","ADMIN_TELEGRAM_IDS"]; const out={}; for (const key of keys) out[key]=process.env[key]; fs.writeFileSync(".cloudflare-secrets.json", JSON.stringify(out));'
+          set -euo pipefail
+          export CLOUDFLARE_API_TOKEN="$(printf '%s' "$CLOUDFLARE_API_TOKEN" | tr -d '[:space:]')"
+          export CLOUDFLARE_ACCOUNT_ID="$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | tr -d '[:space:]')"
+          node -e 'const fs=require("fs"); const keys=["DATABASE_URL","TELEGRAM_BOT_TOKEN","TELEGRAM_WEBHOOK_SECRET","ADMIN_TELEGRAM_IDS"]; const out={}; for (const key of keys) out[key]=process.env[key].trim(); fs.writeFileSync(".cloudflare-secrets.json", JSON.stringify(out));'
+          trap 'rm -f .cloudflare-secrets.json' EXIT
           npx wrangler deploy --config apps/web/wrangler.jsonc --secrets-file .cloudflare-secrets.json
-          rm -f .cloudflare-secrets.json
