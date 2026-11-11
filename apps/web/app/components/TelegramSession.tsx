@@ -20,6 +20,7 @@ type SessionState = "loading" | "ready" | "outside" | "error";
 export function TelegramSession() {
   const [state, setState] = useState<SessionState>("loading");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
@@ -43,7 +44,7 @@ export function TelegramSession() {
       .then(async (response) => {
         const result = await response.json();
         if (!response.ok && response.status !== 401 && response.status !== 403) {
-          throw new Error(result.error || "Не удалось проверить права администратора.");
+          throw new Error(`${result.error || "Не удалось проверить права администратора."} (HTTP ${response.status})`);
         }
         return result as { isAdmin?: boolean; role?: string | null };
       })
@@ -51,12 +52,15 @@ export function TelegramSession() {
         setIsAdmin(data.isAdmin === true);
         setState("ready");
       })
-      .catch(() => setState("error"));
+      .catch((error: unknown) => {
+        setErrorMessage(error instanceof Error ? error.message : "Неизвестная ошибка соединения.");
+        setState("error");
+      });
   }, []);
 
   if (state === "loading") return <p className="session-note">ПОДКЛЮЧАЕМ TELEGRAM…</p>;
   if (state === "outside") return <p className="session-note">ОТКРОЙТЕ MINI APP ЧЕРЕЗ TELEGRAM</p>;
-  if (state === "error") return <p className="session-note">НЕ УДАЛОСЬ ПОДТВЕРДИТЬ TELEGRAM. ПЕРЕОТКРОЙТЕ ПРИЛОЖЕНИЕ.</p>;
+  if (state === "error") return <p className="session-note">НЕ УДАЛОСЬ ПОДТВЕРДИТЬ TELEGRAM: {errorMessage} Переоткройте приложение.</p>;
 
   return (
     <div className="session-bar">
