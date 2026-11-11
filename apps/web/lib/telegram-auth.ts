@@ -42,9 +42,10 @@ export async function validateTelegramInitData(
     .join("\n");
 
   const encoder = new TextEncoder();
+  // Telegram Web Apps signature: HMAC(key=botToken, data="WebAppData").
   const secretKey = await hmacSha256(
-    encoder.encode("WebAppData"),
-    encoder.encode(botToken)
+    encoder.encode(botToken),
+    encoder.encode("WebAppData")
   );
   const calculatedHash = await hmacSha256(
     secretKey,
