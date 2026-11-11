@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
   }
 
   const initData = form.get("initData");
-  const telegramUser = typeof initData === "string" ? validateTelegramInitData(initData, token) : null;
+  const telegramUser = typeof initData === "string" ? await validateTelegramInitData(initData, token) : null;
   if (!telegramUser) {
     return NextResponse.json({ error: "Не удалось подтвердить Telegram. Переоткройте Mini App." }, { status: 401 });
   }
