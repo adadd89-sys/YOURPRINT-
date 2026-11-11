@@ -8,7 +8,7 @@ async function authenticate(request: NextRequest) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) return { error: NextResponse.json({ error: "Сервис пока не настроен." }, { status: 503 }) };
   const initData = request.headers.get("x-telegram-init-data");
-  const telegramUser = initData ? validateTelegramInitData(initData, token) : null;
+  const telegramUser = initData ? await validateTelegramInitData(initData, token) : null;
   if (!telegramUser) {
     return { error: NextResponse.json({ error: "Не удалось подтвердить Telegram. Переоткройте Mini App." }, { status: 401 }) };
   }
