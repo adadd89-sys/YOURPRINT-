@@ -105,7 +105,7 @@ jobs:
           const dataCheckString = [...params.entries()]
             .sort(([a], [b]) => a.localeCompare(b))
             .map(([key, value]) => `${key}=${value}`)
-            .join("\\n");
+            .join("\n");
           const secretKey = createHmac("sha256", token).update("WebAppData").digest();
           const hash = createHmac("sha256", secretKey).update(dataCheckString).digest("hex");
           params.set("hash", hash);
