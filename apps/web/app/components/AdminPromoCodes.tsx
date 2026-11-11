@@ -2,12 +2,6 @@
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
 
-declare global {
-  interface Window {
-    Telegram?: { WebApp?: { initData: string } };
-  }
-}
-
 type Promo = {
   id: string;
   code: string;
