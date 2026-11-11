@@ -28,7 +28,7 @@ export default function HomePage() {
         <div className="hub-grid">
           {sections.map((section) => (
             <a className={section.featured ? "hub-card featured" : "hub-card"} href={section.href} key={section.number}>
-              <span className="hub-card-top"><span>{section.number} / 04</span><b>{section.icon}</b></span>
+              <span className="hub-card-top"><b>{section.icon}</b></span>
               <strong>{section.title}</strong>
               <small>{section.description}</small>
               <span className="hub-arrow">ОТКРЫТЬ ↗</span>
