@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../../lib/prisma";
 import { validateTelegramInitData } from "../../../../lib/telegram-auth";
 
 export const runtime = "nodejs";
@@ -28,6 +27,9 @@ export async function POST(request: NextRequest) {
 
   let user;
   try {
+    // Import lazily so initialization errors (for example, a missing DATABASE_URL)
+    // are caught and returned as a diagnostic instead of crashing the route module.
+    const { prisma } = await import("../../../../lib/prisma");
     user = await prisma.user.upsert({
       where: { telegramId: BigInt(telegramUser.id) },
       create: {
@@ -45,12 +47,15 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     const details = error && typeof error === "object"
-      ? error as { code?: unknown; name?: unknown }
+      ? error as { code?: unknown; name?: unknown; message?: unknown }
       : {};
-    const diagnostic = typeof details.code === "string"
-      ? details.code
-      : typeof details.name === "string" ? details.name : "UNKNOWN";
-    console.error("[telegram-auth] user upsert failed", error);
+    const message = typeof details.message === "string" ? details.message : "";
+    const diagnostic = message.includes("DATABASE_URL is required")
+      ? "DATABASE_URL_MISSING"
+      : typeof details.code === "string"
+        ? details.code
+        : typeof details.name === "string" ? details.name : "UNKNOWN";
+    console.error("[telegram-auth] database initialization or upsert failed", error);
     return NextResponse.json(
       { error: `Ошибка базы данных: ${diagnostic}` },
       { status: 500 }
