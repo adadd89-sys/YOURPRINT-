@@ -78,15 +78,16 @@ export function AdminOrders() {
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
-    if (!webApp?.initData) {
+    const data = webApp?.initData || sessionStorage.getItem("yourprint_telegram_init_data") || "";
+    if (!data) {
       setError("Откройте административную панель через Telegram Mini App.");
       setLoading(false);
       return;
     }
-    webApp.ready();
-    webApp.expand();
-    setInitData(webApp.initData);
-    loadOrders(webApp.initData, filter)
+    webApp?.ready();
+    webApp?.expand();
+    setInitData(data);
+    loadOrders(data, filter)
       .catch((reason: Error) => setError(reason.message))
       .finally(() => setLoading(false));
   }, [filter, loadOrders]);
