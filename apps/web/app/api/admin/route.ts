@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validateTelegramInitData } from "../../../../lib/telegram-auth";
+import { validateTelegramInitData } from "../../../lib/telegram-auth";
 
 export const runtime = "nodejs";
 
