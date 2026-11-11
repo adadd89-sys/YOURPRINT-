@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 async function handlePost(request: NextRequest) {
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+  const botToken = process.env.TELEGRAM_BOT_TOKEN?.trim();
   if (!botToken) {
     return NextResponse.json({ error: "Сервер ещё не настроен." }, { status: 503 });
   }
@@ -24,8 +24,16 @@ async function handlePost(request: NextRequest) {
   try {
     // Load the validator inside the guarded block so module initialization errors
     // are returned as JSON diagnostics instead of escaping the Worker handler.
-    const { validateTelegramInitData } = await import("../../../../lib/telegram-auth");
-    telegramUser = await validateTelegramInitData(body.initData, botToken);
+    const { validateTelegramInitDataDetailed } = await import("../../../../lib/telegram-auth");
+    const validation = await validateTelegramInitDataDetailed(body.initData, botToken);
+    telegramUser = validation.user;
+    if (!telegramUser) {
+      console.warn("[telegram-auth] initData rejected:", validation.reason);
+      return NextResponse.json(
+        { error: validation.reason || "Не удалось подтвердить аккаунт Telegram." },
+        { status: 401 }
+      );
+    }
   } catch (error) {
     const details = error && typeof error === "object"
       ? error as { code?: unknown; name?: unknown }
@@ -38,9 +46,6 @@ async function handlePost(request: NextRequest) {
       { error: `Ошибка проверки Telegram: ${diagnostic}` },
       { status: 500 }
     );
-  }
-  if (!telegramUser) {
-    return NextResponse.json({ error: "Не удалось подтвердить аккаунт Telegram. Откройте приложение заново." }, { status: 401 });
   }
 
   let user;
