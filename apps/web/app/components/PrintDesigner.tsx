@@ -34,7 +34,7 @@ export function PrintDesigner() {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-    if (!/^image\\/(png|jpeg|webp)$/.test(file.type) || file.size > 15 * 1024 * 1024) {
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type) || file.size > 15 * 1024 * 1024) {
       setMessage("Загрузите PNG, JPG или WEBP размером до 15 МБ.");
       return;
     }
