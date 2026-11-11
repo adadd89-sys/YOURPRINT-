@@ -14,6 +14,7 @@ declare global {
 
 export default function AdminPage() {
   const [access, setAccess] = useState<AccessState>("loading");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
@@ -32,11 +33,17 @@ export default function AdminPage() {
       body: JSON.stringify({ initData })
     })
       .then(async (response) => {
-        if (!response.ok) throw new Error("Не удалось подтвердить Telegram.");
-        return response.json();
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(typeof data.error === "string" ? String(response.status) + ": " + data.error : "HTTP " + response.status);
+        }
+        return data as { isAdmin: boolean };
       })
-      .then((data: { isAdmin: boolean }) => setAccess(data.isAdmin ? "allowed" : "denied"))
-      .catch(() => setAccess("error"));
+      .then((data) => setAccess(data.isAdmin ? "allowed" : "denied"))
+      .catch((error: unknown) => {
+        setErrorMessage(error instanceof Error ? error.message : "Неизвестная ошибка");
+        setAccess("error");
+      });
   }, []);
 
   if (access === "loading") return <main className="admin-gate"><p>Проверяем доступ…</p></main>;
@@ -46,7 +53,7 @@ export default function AdminPage() {
       <main className="admin-gate">
         <a className="logo" href="/">YOURPRINT<span>.</span></a>
         <h1>Доступ закрыт</h1>
-        <p>{access === "outside" ? "Откройте эту страницу внутри Telegram Mini App." : access === "denied" ? "Этот Telegram-аккаунт не добавлен в список администраторов." : "Не удалось подтвердить Telegram. Переоткройте Mini App."}</p>
+        <p>{access === "outside" ? "Откройте эту страницу внутри Telegram Mini App." : access === "denied" ? "Этот Telegram-аккаунт не добавлен в список администраторов." : errorMessage || "Не удалось подтвердить Telegram. Переоткройте Mini App."}</p>
         <a className="admin-back" href="/">Вернуться в магазин</a>
       </main>
     );
