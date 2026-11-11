@@ -22,7 +22,7 @@ export async function requireAdmin(request: NextRequest) {
     return { response: NextResponse.json({ error: "Требуется авторизация Telegram." }, { status: 401 }) } as const;
   }
 
-  const telegramUser = validateTelegramInitData(initData, token);
+  const telegramUser = await validateTelegramInitData(initData, token);
   if (!telegramUser) {
     return { response: NextResponse.json({ error: "Не удалось подтвердить Telegram." }, { status: 401 }) } as const;
   }
