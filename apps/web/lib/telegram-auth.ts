@@ -53,7 +53,8 @@ export async function validateTelegramInitDataDetailed(
     .join("\n");
 
   const encoder = new TextEncoder();
-  const secretKey = await hmacSha256(encoder.encode(botToken), encoder.encode("WebAppData"));
+  // Telegram WebApp derivation: HMAC-SHA256(key="WebAppData", data=botToken).
+  const secretKey = await hmacSha256(encoder.encode("WebAppData"), encoder.encode(botToken));
   const calculatedHash = await hmacSha256(secretKey, encoder.encode(dataCheckString));
   const calculatedHex = Array.from(calculatedHash, byte => byte.toString(16).padStart(2, "0")).join("");
 
