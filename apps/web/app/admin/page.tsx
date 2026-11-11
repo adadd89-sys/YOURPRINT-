@@ -17,18 +17,19 @@ export default function AdminPage() {
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
-    if (!webApp?.initData) {
+    const initData = webApp?.initData || sessionStorage.getItem("yourprint_telegram_init_data") || "";
+    if (!initData) {
       setAccess("outside");
       return;
     }
 
-    webApp.ready();
-    webApp.expand();
+    webApp?.ready();
+    webApp?.expand();
 
     fetch("/api/auth/telegram", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ initData: webApp.initData })
+      body: JSON.stringify({ initData })
     })
       .then(async (response) => {
         if (!response.ok) throw new Error("Не удалось подтвердить Telegram.");
