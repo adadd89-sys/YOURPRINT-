@@ -24,7 +24,8 @@ export function TelegramSession() {
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
-    const initData = webApp?.initData || sessionStorage.getItem("yourprint_telegram_init_data") || "";
+    const liveInitData = webApp?.initData ?? "";
+    const initData = liveInitData || sessionStorage.getItem("yourprint_telegram_init_data") || "";
     if (!initData) {
       setState("outside");
       return;
@@ -32,21 +33,19 @@ export function TelegramSession() {
 
     webApp?.ready();
     webApp?.expand();
-    sessionStorage.setItem("yourprint_telegram_init_data", initData);
+    if (liveInitData) sessionStorage.setItem("yourprint_telegram_init_data", liveInitData);
 
-    // Как в «Стрелке»: отдельный запрос проверяет права и не запускает
-    // операции с заказами или базой клиентов при показе кнопки.
     fetch("/api/admin", {
       method: "GET",
       headers: { "x-telegram-init-data": initData },
       cache: "no-store"
     })
       .then(async (response) => {
-        const result = await response.json();
-        if (!response.ok && response.status !== 401 && response.status !== 403) {
-          throw new Error(`${result.error || "Не удалось проверить права администратора."} (HTTP ${response.status})`);
+        const result = await response.json() as { isAdmin?: boolean; role?: string | null; error?: string };
+        if (!response.ok) {
+          throw new Error(`${result.error || "Не удалось проверить Telegram."} (HTTP ${response.status})`);
         }
-        return result as { isAdmin?: boolean; role?: string | null };
+        return result;
       })
       .then((data) => {
         setIsAdmin(data.isAdmin === true);
