@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { AdminOrders } from "../components/AdminOrders";
 import { AdminPromoCodes } from "../components/AdminPromoCodes";
 
-type AccessState = "loading" | "allowed" | "denied" | "error";
+type AccessState = "loading" | "allowed" | "denied" | "outside" | "error";
 
 declare global {
   interface Window {
@@ -18,7 +18,7 @@ export default function AdminPage() {
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
     if (!webApp?.initData) {
-      setAccess("denied");
+      setAccess("outside");
       return;
     }
 
@@ -45,7 +45,7 @@ export default function AdminPage() {
       <main className="admin-gate">
         <a className="logo" href="/">YOURPRINT<span>.</span></a>
         <h1>Доступ закрыт</h1>
-        <p>{access === "denied" ? "Административная панель доступна только владельцу." : "Не удалось подтвердить Telegram. Переоткройте Mini App."}</p>
+        <p>{access === "outside" ? "Откройте эту страницу внутри Telegram Mini App." : access === "denied" ? "Этот Telegram-аккаунт не добавлен в список администраторов." : "Не удалось подтвердить Telegram. Переоткройте Mini App."}</p>
         <a className="admin-back" href="/">Вернуться в магазин</a>
       </main>
     );
