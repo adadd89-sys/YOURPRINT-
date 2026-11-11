@@ -24,28 +24,33 @@ export function TelegramSession() {
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
-    if (!webApp?.initData) {
+    const initData = webApp?.initData || sessionStorage.getItem("yourprint_telegram_init_data") || "";
+    if (!initData) {
       setState("outside");
       return;
     }
 
-    webApp.ready();
-    webApp.expand();
-    // Keep the signed Telegram session available during Mini App client-side navigation.
-    sessionStorage.setItem("yourprint_telegram_init_data", webApp.initData);
+    webApp?.ready();
+    webApp?.expand();
+    sessionStorage.setItem("yourprint_telegram_init_data", initData);
 
-    fetch("/api/auth/telegram", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ initData: webApp.initData })
+    // Как в «Стрелке»: отдельный запрос проверяет права и не запускает
+    // операции с заказами или базой клиентов при показе кнопки.
+    fetch("/api/admin", {
+      method: "GET",
+      headers: { "x-telegram-init-data": initData },
+      cache: "no-store"
     })
       .then(async (response) => {
-        if (!response.ok) throw new Error("Telegram auth failed");
-        return response.json();
+        const result = await response.json();
+        if (!response.ok && response.status !== 401 && response.status !== 403) {
+          throw new Error(result.error || "Не удалось проверить права администратора.");
+        }
+        return result as { isAdmin?: boolean; role?: string | null };
       })
-      .then((data: { user: { firstName: string | null }; isAdmin: boolean }) => {
-        setFirstName(data.user.firstName ?? "");
+      .then((data) => {
         setIsAdmin(data.isAdmin === true);
+        setFirstName(webApp?.initData ? (window.Telegram?.WebApp ? "ПОЛЬЗОВАТЕЛЬ" : "") : "");
         setState("ready");
       })
       .catch(() => setState("error"));
@@ -57,8 +62,8 @@ export function TelegramSession() {
 
   return (
     <div className="session-bar">
-      <p className="session-note">ВЫ В СИСТЕМЕ{firstName ? `, ${firstName.toUpperCase()}` : ""}</p>
-      {isAdmin && <Link className="admin-entry" href="/admin">⚙ Админ-панель</Link>}
+      {firstName && <p className="session-note">ВЫ В СИСТЕМЕ</p>}
+      {isAdmin && <Link className="admin-entry" href="/admin">⚙ Администрирование</Link>}
     </div>
   );
 }
