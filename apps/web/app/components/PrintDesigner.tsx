@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, CSSProperties, useEffect, useState } from "react";
 
 const sizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
 const garments = [
@@ -90,7 +90,7 @@ export function PrintDesigner() {
 
       <div className="designer-layout">
         <div className="designer-preview-wrap">
-          <div className="designer-preview" style={{ ["--garment-color" as string]: color }}>
+          <div className="designer-preview" style={{ "--garment-color": color } as CSSProperties}>
             <svg className="garment-svg" viewBox="0 0 320 340" role="img" aria-label={garment}>
               {isHoodie ? (
                 <><path d="M111 53 75 66 30 105 55 166 87 149 87 304 Q160 321 233 304 L233 149 265 166 290 105 245 66 209 53 Q205 103 160 111 115 103 111 53Z" /><path d="M111 53 Q112 110 160 111 Q208 110 209 53 L194 27 Q160 5 126 27Z" /><path d="M132 93 Q160 133 188 93 L180 164 160 181 140 164Z" className="garment-detail" /><path d="M132 93 142 164 M188 93 178 164" className="garment-line" /><path d="M125 257 Q160 269 195 257 L195 290 Q160 300 125 290Z" className="garment-detail" /></>
@@ -101,7 +101,7 @@ export function PrintDesigner() {
               )}
               <path d="M87 149 87 304 Q160 321 233 304 L233 149" className="garment-line" />
             </svg>
-            {previewUrl ? <img className="designer-artwork" src={previewUrl} alt="Предпросмотр принта" style={{ width: scale + "%", top: position + "%" }} /> : <div className="designer-placeholder">ТВОЙ<br/>ДИЗАЙН</div>}
+            {previewUrl ? <img className="designer-artwork" src={previewUrl} alt="Предпросмотр принта" style={{ width: scale + "%", top: position + "%", left: placement === "Слева на груди" ? "40%" : placement === "На рукаве" ? "24%" : "50%" }} /> : <div className="designer-placeholder">ТВОЙ<br/>ДИЗАЙН</div>}
             <span className="preview-label">ПРЕДВАРИТЕЛЬНЫЙ ВИД</span>
           </div>
           <p className="designer-preview-note">Предпросмотр схематичный. Итоговый размер и размещение согласуем перед печатью.</p>
