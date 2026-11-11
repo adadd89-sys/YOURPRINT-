@@ -1,3 +1,4 @@
+import type { TelegramWebAppUser } from "../../../../lib/telegram-auth";
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -19,7 +20,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Не удалось получить данные Telegram." }, { status: 400 });
   }
 
-  let telegramUser;
+  let telegramUser: TelegramWebAppUser | null = null;
   try {
     // Load the validator inside the guarded block so module initialization errors
     // are returned as JSON diagnostics instead of escaping the Worker handler.
