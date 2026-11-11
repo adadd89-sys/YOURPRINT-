@@ -62,3 +62,26 @@ jobs:
           node -e 'const fs=require("fs"); const keys=["DATABASE_URL","TELEGRAM_BOT_TOKEN","TELEGRAM_WEBHOOK_SECRET","ADMIN_TELEGRAM_IDS"]; const out={}; for (const key of keys) out[key]=process.env[key].trim(); fs.writeFileSync(".cloudflare-secrets.json", JSON.stringify(out));'
           trap 'rm -f .cloudflare-secrets.json' EXIT
           npx wrangler deploy --config apps/web/wrangler.jsonc --secrets-file .cloudflare-secrets.json
+
+      - name: Register Telegram webhook
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          const token = process.env.TELEGRAM_BOT_TOKEN.trim();
+          const secret = process.env.TELEGRAM_WEBHOOK_SECRET.trim();
+          const url = "https://yourprint.sergey-adadd89.workers.dev/api/telegram/webhook";
+          const response = await fetch(`https://api.telegram.org/bot${token}/setWebhook`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              url,
+              secret_token: secret,
+              allowed_updates: ["message"]
+            })
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) {
+            throw new Error(`Telegram setWebhook failed: ${result.description || response.status}`);
+          }
+          console.log("Telegram webhook registered successfully.");
+          NODE
