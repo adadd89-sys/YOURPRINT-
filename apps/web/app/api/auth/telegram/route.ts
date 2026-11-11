@@ -42,7 +42,15 @@ export async function POST(request: NextRequest) {
     select: { id: true, firstName: true, role: true }
   });
 
+  const allowedIds = new Set(
+    (process.env.ADMIN_TELEGRAM_IDS ?? "")
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean)
+  );
+
   return NextResponse.json({
-    user: { id: user.id, firstName: user.firstName, role: user.role }
+    user: { id: user.id, firstName: user.firstName },
+    isAdmin: allowedIds.has(String(telegramUser.id))
   });
 }
