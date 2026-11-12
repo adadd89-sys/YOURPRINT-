@@ -90,7 +90,7 @@ export function PrintDesigner() {
 
       <div className="designer-layout">
         <div className="designer-preview-wrap">
-          <div className="designer-preview" style={{ "--garment-color": color } as CSSProperties}>
+          <div className={`designer-preview${placement.includes("плече") ? " preview-shoulder" : ""}`} style={{ "--garment-color": color } as CSSProperties}>
             <svg className={`garment-svg garment-${isHoodie ? "hoodie" : isSweatshirt ? "sweatshirt" : "tee"}`} viewBox="0 0 320 340" role="img" aria-label={garment}>
               <defs>
                 <linearGradient id="fabricBase" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity=".25" /><stop offset=".32" stopColor="#fff" stopOpacity=".06" /><stop offset=".68" stopColor="#000" stopOpacity=".08" /><stop offset="1" stopColor="#000" stopOpacity=".3" /></linearGradient>
@@ -125,9 +125,9 @@ export function PrintDesigner() {
             </svg>            {previewUrl ? <img className="designer-artwork" src={previewUrl} alt="Предпросмотр принта" style={{
               width: scale + "%",
               maxWidth: placement.includes("плече") || placement === "На рукаве" ? "34%" : "75%",
-              top: placement.includes("плече") ? "37%" : placement === "На рукаве" ? "43%" : placement === "Слева на груди" || placement === "Спина" ? "47%" : position + "%",
-              left: placement === "На левом плече" ? "29%" : placement === "На правом плече" ? "71%" : placement === "На рукаве" ? "24%" : placement === "Слева на груди" ? "40%" : "50%",
-              transform: "translate(-50%, -50%) rotate(" + (placement === "На левом плече" || placement === "На рукаве" ? "-90deg" : placement === "На правом плече" ? "90deg" : "0deg") + ")"
+              top: placement === "На левом плече" ? "74%" : placement === "На правом плече" ? "38%" : placement === "На рукаве" ? "43%" : placement === "Слева на груди" || placement === "Спина" ? "47%" : position + "%",
+              left: placement.includes("плече") ? "19%" : placement === "На рукаве" ? "24%" : placement === "Слева на груди" ? "40%" : "50%",
+              transform: "translate(-50%, -50%)"
             }} /> : <div className="designer-placeholder">ТВОЙ<br/>ДИЗАЙН</div>}
             <span className="preview-label">ПРЕДВАРИТЕЛЬНЫЙ ВИД</span>
           </div>
