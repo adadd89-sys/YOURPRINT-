@@ -29,7 +29,24 @@ const labels: Record<string, string> = {
 
 function date(value: string | null) {
   if (!value) return "Не указан";
-  return new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(value));
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "Не указана";
+  try {
+    return new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "long", year: "numeric" }).format(parsed);
+  } catch {
+    return parsed.toLocaleDateString();
+  }
+}
+
+function getTelegramInitData() {
+  try {
+    const live = window.Telegram?.WebApp?.initData;
+    if (typeof live === "string" && live.trim()) return live.trim();
+    const saved = sessionStorage.getItem("yourprint_telegram_init_data");
+    return saved?.trim() || "";
+  } catch {
+    return window.Telegram?.WebApp?.initData || "";
+  }
 }
 
 export function CustomerAccount() {
@@ -40,7 +57,7 @@ export function CustomerAccount() {
   const [repeatId, setRepeatId] = useState("");
 
   const loadOrders = useCallback(async () => {
-    const initData = window.Telegram?.WebApp?.initData;
+    const initData = getTelegramInitData();
     if (!initData) {
       setError("Откройте личный кабинет через Telegram Mini App.");
       setLoading(false);
@@ -48,10 +65,11 @@ export function CustomerAccount() {
     }
     try {
       const response = await fetch("/api/customer/orders", { headers: { "x-telegram-init-data": initData } });
-      const result = await response.json();
+      const result = await response.json() as { orders?: CustomerOrder[]; error?: string };
       if (!response.ok) throw new Error(result.error || "Не удалось загрузить заказы.");
-      setOrders(result.orders);
-      setSelectedId((current) => current || result.orders[0]?.id || "");
+      const customerOrders = Array.isArray(result.orders) ? result.orders : [];
+      setOrders(customerOrders);
+      setSelectedId((current) => current || customerOrders[0]?.id || "");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Ошибка загрузки.");
     } finally {
@@ -65,7 +83,7 @@ export function CustomerAccount() {
 
   async function repeatOrder(order: CustomerOrder) {
     if (!window.confirm(`Создать новый заказ на основе заказа №${order.number}?`)) return;
-    const initData = window.Telegram?.WebApp?.initData;
+    const initData = getTelegramInitData();
     if (!initData) {
       setError("Откройте приложение через Telegram.");
       return;
