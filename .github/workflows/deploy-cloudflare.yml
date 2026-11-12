@@ -211,21 +211,32 @@ jobs:
           params.set("hash", createHmac("sha256", secretKey).update(dataCheckString).digest("hex"));
           const headers = { "x-telegram-init-data": params.toString() };
 
+          const failures = [];
           for (const [path, expectedKey] of [
             ["/api/admin/analytics?month=2026-11", "summary"],
             ["/api/admin/promo-codes", "promoCodes"],
             ["/api/admin/contacts", "settings"]
           ]) {
-            const response = await fetch(`https://yourprint.sergey-adadd89.workers.dev${path}`, { headers });
-            const body = await response.text();
-            let result;
-            try { result = JSON.parse(body); } catch {}
-            if (!response.ok || !result || !(expectedKey in result)) {
-              console.error(`Admin API smoke test failed for ${path}: HTTP ${response.status}`);
-              console.error(body.slice(0, 1200));
-              process.exit(1);
+            try {
+              const response = await fetch(`https://yourprint.sergey-adadd89.workers.dev${path}`, { headers });
+              const body = await response.text();
+              let result;
+              try { result = JSON.parse(body); } catch {}
+              if (!response.ok || !result || !(expectedKey in result)) {
+                console.error(`Admin API smoke test failed for ${path}: HTTP ${response.status}`);
+                console.error(body.slice(0, 1200));
+                failures.push(path);
+                continue;
+              }
+              console.log(`Admin API smoke test passed: ${path}`);
+            } catch (error) {
+              console.error(`Admin API request threw for ${path}: ${error?.message || error}`);
+              failures.push(path);
             }
-            console.log(`Admin API smoke test passed: ${path}`);
+          }
+          if (failures.length) {
+            console.error(`Admin API smoke tests failed: ${failures.join(", ")}`);
+            process.exit(1);
           }
           NODE
 
