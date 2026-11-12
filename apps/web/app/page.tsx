@@ -10,14 +10,12 @@ const sections = [
 export default function HomePage() {
   return (
     <main className="page">
-      <header className="topbar">
-        <a className="brand-logo-link" href="/" aria-label="YOURPRINT — главная">
-          <img className="brand-logo" src="/yourprint-logo.svg" alt="YOURPRINT" />
-        </a>
-      </header>
       <section className="hero">
         <p className="eyebrow">ПЕЧАТЬ, КОТОРАЯ ВЫДЕЛЯЕТ</p>
-        <h1>ТВОЯ ИДЕЯ.<br /><span>ТВОЙ ПРИНТ.</span></h1>
+        <div className="hero-brand-row">
+          <h1>ТВОЯ ИДЕЯ.<br /><span>ТВОЙ ПРИНТ.</span></h1>
+          <img className="hero-brand-mark" src="/yourprint-logo.svg" alt="YOURPRINT" />
+        </div>
         <p className="intro">Создавай уникальную одежду со своим дизайном. Загрузи изображение, выбери изделие — остальное сделаем мы.</p>
         <TelegramSession />
       </section>
