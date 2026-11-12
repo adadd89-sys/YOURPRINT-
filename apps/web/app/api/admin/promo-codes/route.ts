@@ -11,7 +11,7 @@ function parseDate(value: unknown): Date | null | undefined {
   return Number.isNaN(date.getTime()) ? undefined : date;
 }
 
-export async function GET(request: NextRequest) {
+async function getPromoCodes(request: NextRequest) {
   const auth = await requireAdmin(request);
   if ("response" in auth) return auth.response;
 
@@ -106,4 +106,17 @@ export async function PATCH(request: NextRequest) {
   });
   if (result.count === 0) return NextResponse.json({ error: "Промокод не найден." }, { status: 404 });
   return NextResponse.json({ success: true });
+}
+
+
+export async function GET(request: NextRequest) {
+  try {
+    return await getPromoCodes(request);
+  } catch (error) {
+    console.error("[admin/promo-codes] GET failed", error);
+    return NextResponse.json(
+      { error: "Не удалось загрузить промокоды. Ошибка записана в журнал сервера." },
+      { status: 500 }
+    );
+  }
 }
