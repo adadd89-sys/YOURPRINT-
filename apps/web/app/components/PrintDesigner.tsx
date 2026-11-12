@@ -91,17 +91,44 @@ export function PrintDesigner() {
       <div className="designer-layout">
         <div className="designer-preview-wrap">
           <div className="designer-preview" style={{ "--garment-color": color } as CSSProperties}>
-            <svg className="garment-svg" viewBox="0 0 320 340" role="img" aria-label={garment}>
-              {isHoodie ? (
-                <><path d="M111 53 75 66 30 105 55 166 87 149 87 304 Q160 321 233 304 L233 149 265 166 290 105 245 66 209 53 Q205 103 160 111 115 103 111 53Z" /><path d="M111 53 Q112 110 160 111 Q208 110 209 53 L194 27 Q160 5 126 27Z" /><path d="M132 93 Q160 133 188 93 L180 164 160 181 140 164Z" className="garment-detail" /><path d="M132 93 142 164 M188 93 178 164" className="garment-line" /><path d="M125 257 Q160 269 195 257 L195 290 Q160 300 125 290Z" className="garment-detail" /></>
-              ) : isSweatshirt ? (
-                <><path d="M111 53 75 66 30 105 55 166 87 149 87 304 Q160 321 233 304 L233 149 265 166 290 105 245 66 209 53 Q205 103 160 111 115 103 111 53Z" /><path d="M111 53 Q112 110 160 111 Q208 110 209 53" className="garment-line" /><path d="M87 286 Q160 304 233 286 M55 154 75 163 M265 154 245 163" className="garment-line" /></>
-              ) : (
-                <><path d="M111 53 75 66 30 105 55 166 87 149 87 304 Q160 321 233 304 L233 149 265 166 290 105 245 66 209 53 Q205 103 160 111 115 103 111 53Z" /><path d="M111 53 Q112 110 160 111 Q208 110 209 53" className="garment-line" /></>
-              )}
-              <path d="M87 149 87 304 Q160 321 233 304 L233 149" className="garment-line" />
-            </svg>
-            {previewUrl ? <img className="designer-artwork" src={previewUrl} alt="Предпросмотр принта" style={{ width: scale + "%", maxWidth: "75%", top: position + "%", left: placement === "Слева на груди" ? "40%" : placement === "На рукаве" ? "24%" : "50%" }} /> : <div className="designer-placeholder">ТВОЙ<br/>ДИЗАЙН</div>}
+            <svg className={`garment-svg garment-${isHoodie ? "hoodie" : isSweatshirt ? "sweatshirt" : "tee"}`} viewBox="0 0 320 340" role="img" aria-label={garment}>
+              <defs>
+                <linearGradient id="fabricBase" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff" stopOpacity=".25" /><stop offset=".32" stopColor="#fff" stopOpacity=".06" /><stop offset=".68" stopColor="#000" stopOpacity=".08" /><stop offset="1" stopColor="#000" stopOpacity=".3" /></linearGradient>
+                <linearGradient id="fabricShade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#000" stopOpacity=".22" /><stop offset=".22" stopColor="#fff" stopOpacity=".1" /><stop offset=".5" stopColor="#fff" stopOpacity=".03" /><stop offset="1" stopColor="#000" stopOpacity=".2" /></linearGradient>
+                <filter id="fabricShadow" x="-30%" y="-20%" width="160%" height="160%"><feGaussianBlur in="SourceAlpha" stdDeviation="5" /><feOffset dy="7" /><feComponentTransfer><feFuncA type="linear" slope=".35" /></feComponentTransfer><feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+              </defs>
+              <g filter="url(#fabricShadow)">
+                {isHoodie ? (
+                  <>
+                    <path className="garment-piece" d="M111 61 76 70 27 112 54 181 88 160 91 302 Q160 321 229 302 L232 160 266 181 293 112 244 70 209 61 194 87 Q160 116 126 87Z" />
+                    <path className="garment-detail" d="M111 61 Q111 112 160 119 Q209 112 209 61 L194 24 Q160 -2 126 24Z" />
+                    <path className="garment-line" d="M126 26 Q128 76 160 89 Q192 76 194 26 M160 89 160 117" />
+                    <path className="garment-detail" d="M126 220 Q160 232 194 220 L205 275 Q160 294 115 275Z" />
+                    <path className="garment-line" d="M126 220 Q160 232 194 220 M142 220 145 270 M178 220 175 270 M91 285 Q160 306 229 285" />
+                  </>
+                ) : isSweatshirt ? (
+                  <>
+                    <path className="garment-piece" d="M111 52 76 67 29 108 54 174 87 154 90 291 Q160 310 230 291 L233 154 266 174 291 108 244 67 209 52 Q205 104 160 111 Q115 104 111 52Z" />
+                    <path className="garment-detail" d="M111 52 Q112 104 160 111 Q208 104 209 52 Q205 78 160 83 Q115 78 111 52Z" />
+                    <path className="garment-detail" d="M89 280 Q160 300 231 280 L230 305 Q160 326 90 305Z M52 159 65 165 77 151 86 157 75 181 60 185Z M268 159 255 165 243 151 234 157 245 181 260 185Z" />
+                    <path className="garment-line" d="M111 52 Q112 104 160 111 Q208 104 209 52 M90 291 Q160 310 230 291" />
+                  </>
+                ) : (
+                  <>
+                    <path className="garment-piece" d="M111 52 76 67 29 108 54 174 87 154 90 302 Q160 321 230 302 L233 154 266 174 291 108 244 67 209 52 Q205 104 160 111 Q115 104 111 52Z" />
+                    <path className="garment-detail" d="M111 52 Q112 104 160 111 Q208 104 209 52 Q205 78 160 83 Q115 78 111 52Z" />
+                    <path className="garment-line" d="M111 52 Q112 104 160 111 Q208 104 209 52 M90 302 Q160 321 230 302" />
+                  </>
+                )}
+                <path className="garment-highlight" d="M105 67 83 78 43 112 58 151 M215 67 237 78 277 112 262 151 M101 132 103 280 M219 132 217 280" />
+              </g>
+            </svg>            {previewUrl ? <img className="designer-artwork" src={previewUrl} alt="Предпросмотр принта" style={{
+              width: scale + "%",
+              maxWidth: placement.includes("плече") || placement === "На рукаве" ? "34%" : "75%",
+              top: placement.includes("плече") ? "37%" : placement === "На рукаве" ? "43%" : placement === "Слева на груди" || placement === "Спина" ? "47%" : position + "%",
+              left: placement === "На левом плече" ? "29%" : placement === "На правом плече" ? "71%" : placement === "На рукаве" ? "24%" : placement === "Слева на груди" ? "40%" : "50%",
+              transform: "translate(-50%, -50%) rotate(" + (placement === "На левом плече" || placement === "На рукаве" ? "-90deg" : placement === "На правом плече" ? "90deg" : "0deg") + ")"
+            }} /> : <div className="designer-placeholder">ТВОЙ<br/>ДИЗАЙН</div>}
             <span className="preview-label">ПРЕДВАРИТЕЛЬНЫЙ ВИД</span>
           </div>
           <p className="designer-preview-note">Предпросмотр схематичный. Итоговый размер и размещение согласуем перед печатью.</p>
@@ -129,7 +156,7 @@ export function PrintDesigner() {
 
           <label className="designer-label">Расположение
             <select value={placement} onChange={(e) => setPlacement(e.target.value)}>
-              <option>По центру груди</option><option>Слева на груди</option><option>Спина</option><option>На рукаве</option>
+              <option>По центру груди</option><option>Слева на груди</option><option>Спина</option><option>На левом плече</option><option>На правом плече</option><option>На рукаве</option>
             </select>
           </label>
 
