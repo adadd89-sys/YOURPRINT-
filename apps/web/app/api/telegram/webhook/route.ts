@@ -84,10 +84,11 @@ async function addChannelOrderButton(token: string, post: TelegramMessage) {
 
   const result = await response.json() as { ok?: boolean; description?: string };
   if (!response.ok || !result.ok) {
-    console.error("YOURPRINT channel button could not be attached:", result.description || response.status);
-  } else {
-    console.log("YOURPRINT order button attached to channel post:", messageId);
+    const reason = result.description || `Telegram API HTTP ${response.status}`;
+    console.error("YOURPRINT channel button could not be attached:", reason);
+    throw new Error(reason);
   }
+  console.log("YOURPRINT order button attached to channel post:", messageId);
 }
 
 export async function POST(request: NextRequest) {
@@ -111,7 +112,16 @@ export async function POST(request: NextRequest) {
   const channelPost = update.channel_post;
   if (channelPost?.chat?.type === "channel") {
     if (channelPost.chat.username?.toLowerCase() === "yourprintkzn") {
-      await addChannelOrderButton(token, channelPost);
+      try {
+        await addChannelOrderButton(token, channelPost);
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : "Unknown Telegram API error";
+        console.error("YOURPRINT channel post processing failed:", reason);
+        // Return 5xx so Telegram records the delivery failure and retries the update.
+        return NextResponse.json({ ok: false, error: "Could not attach channel order button." }, { status: 502 });
+      }
+    } else {
+      console.warn("YOURPRINT ignored channel post from unexpected channel:", channelPost.chat.username || "no username");
     }
     return NextResponse.json({ ok: true });
   }
