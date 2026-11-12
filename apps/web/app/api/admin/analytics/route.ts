@@ -14,7 +14,7 @@ function monthRange(value: string | null) {
   };
 }
 
-export async function GET(request: NextRequest) {
+async function getAnalytics(request: NextRequest) {
   const auth = await requireAdmin(request);
   if ("response" in auth) return auth.response;
 
@@ -95,4 +95,17 @@ export async function GET(request: NextRequest) {
       items: order.items
     }))
   });
+}
+
+
+export async function GET(request: NextRequest) {
+  try {
+    return await getAnalytics(request);
+  } catch (error) {
+    console.error("[admin/analytics] GET failed", error);
+    return NextResponse.json(
+      { error: "Не удалось загрузить обзор. Ошибка записана в журнал сервера." },
+      { status: 500 }
+    );
+  }
 }
