@@ -296,7 +296,9 @@ jobs:
           for (const [path, expectedKey] of [
             ["/api/admin/analytics?month=2026-11", "summary"],
             ["/api/admin/promo-codes", "promoCodes"],
-            ["/api/admin/contacts", "settings"]
+            ["/api/admin/contacts", "settings"],
+            ["/api/admin/orders", "orders"],
+            ["/api/customer/orders", "orders"]
           ]) {
             try {
               const response = await fetch(`https://yourprint.sergey-adadd89.workers.dev${path}`, { headers });
