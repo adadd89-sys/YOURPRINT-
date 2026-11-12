@@ -211,6 +211,17 @@ jobs:
           params.set("hash", createHmac("sha256", secretKey).update(dataCheckString).digest("hex"));
           const headers = { "x-telegram-init-data": params.toString() };
 
+          // First probe the route without authentication. A healthy handler must return
+          // the JSON 401 from requireAdmin; a Cloudflare HTML 500 means failure occurs
+          // before the route's authentication response.
+          const unauthResponse = await fetch("https://yourprint.sergey-adadd89.workers.dev/api/admin/promo-codes");
+          const unauthBody = await unauthResponse.text();
+          console.log(`Promo route unauthenticated probe: HTTP ${unauthResponse.status}, content-type=${unauthResponse.headers.get("content-type") || "unknown"}`);
+          console.log(unauthBody.slice(0, 600));
+          if (unauthResponse.status !== 401) {
+            console.error("Promo route did not return the expected unauthenticated JSON 401.");
+          }
+
           const failures = [];
           for (const [path, expectedKey] of [
             ["/api/admin/analytics?month=2026-11", "summary"],
