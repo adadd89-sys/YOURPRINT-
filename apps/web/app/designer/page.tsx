@@ -5,7 +5,7 @@ export default function DesignerPage() {
     <main className="page">
       <header className="topbar">
         <a className="logo" href="/">YOURPRINT<span>.</span></a>
-        <a className="topbar-note account-nav" href="/">← В ГЛАВНОЕ МЕНЮ</a>
+        <a className="section-home-link" href="/">← В ГЛАВНОЕ МЕНЮ</a>
       </header>
       <PrintDesigner />
     </main>
