@@ -321,6 +321,57 @@ jobs:
             console.error(`Admin API smoke tests failed: ${failures.join(", ")}`);
             process.exit(1);
           }
+
+          // Create a temporary order for a synthetic Telegram ID, change its status,
+          // then remove the order and temporary customer directly from the database.
+          // This exercises the write paths without notifying a real customer.
+          const testTelegramId = String(Date.now() * 1000 + 827);
+          let testOrderId = null;
+          const { PrismaNeon } = await import("@prisma/adapter-neon");
+          const { PrismaClient } = await import("@prisma/client");
+          const prisma = new PrismaClient({ adapter: new PrismaNeon({ connectionString: process.env.DATABASE_URL }) });
+          try {
+            const createResponse = await fetch("https://yourprint.sergey-adadd89.workers.dev/api/admin/orders", {
+              method: "POST",
+              headers: { ...headers, "content-type": "application/json" },
+              body: JSON.stringify({
+                telegramId: testTelegramId,
+                artworkType: "READY",
+                productName: "YOURPRINT smoke test",
+                size: "M",
+                quantity: 1
+              })
+            });
+            const createBody = await createResponse.text();
+            let created;
+            try { created = JSON.parse(createBody); } catch {}
+            if (createResponse.status !== 201 || !created?.order?.id) {
+              throw new Error(`Admin order creation smoke test failed: HTTP ${createResponse.status} ${createBody.slice(0, 800)}`);
+            }
+            testOrderId = created.order.id;
+            console.log("Admin API smoke test passed: create temporary order.");
+
+            const patchResponse = await fetch("https://yourprint.sergey-adadd89.workers.dev/api/admin/orders", {
+              method: "PATCH",
+              headers: { ...headers, "content-type": "application/json" },
+              body: JSON.stringify({ orderId: testOrderId, status: "ACCEPTED", comment: "Deployment smoke test" })
+            });
+            const patchBody = await patchResponse.text();
+            let patched;
+            try { patched = JSON.parse(patchBody); } catch {}
+            if (patchResponse.status !== 200 || patched?.order?.status !== "ACCEPTED") {
+              throw new Error(`Admin order status smoke test failed: HTTP ${patchResponse.status} ${patchBody.slice(0, 800)}`);
+            }
+            console.log("Admin API smoke test passed: update order status.");
+          } finally {
+            try {
+              if (testOrderId) await prisma.order.deleteMany({ where: { id: testOrderId } });
+              await prisma.user.deleteMany({ where: { telegramId: BigInt(testTelegramId) } });
+              console.log("Temporary admin order and customer cleaned up.");
+            } finally {
+              await prisma.$disconnect();
+            }
+          }
           NODE
           smoke_status=$?
           sleep 2
