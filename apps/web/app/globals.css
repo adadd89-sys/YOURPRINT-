@@ -959,7 +959,7 @@ footer { padding: 15px 0; }
 .admin-gate .brand-logo-link { width: 64px; height: 64px; flex-basis: 64px; }
 
 
-/* Compact inline YOURPRINT mark beside the hero slogan */
+/* Larger inline YOURPRINT mark, vertically aligned with the slogan */
 .hero-brand-row {
   display: flex;
   flex-flow: row nowrap;
@@ -969,26 +969,27 @@ footer { padding: 15px 0; }
   width: 100%;
 }
 .hero-brand-row h1 {
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   min-width: 0;
   width: auto;
 }
 .hero-brand-mark {
   display: block;
-  flex: 0 0 clamp(32px, 8vw, 44px);
-  width: clamp(32px, 8vw, 44px);
-  height: clamp(32px, 8vw, 44px);
+  flex: 0 0 clamp(52px, 15vw, 66px);
+  width: clamp(52px, 15vw, 66px);
+  height: clamp(52px, 15vw, 66px);
   object-fit: contain;
+  align-self: center;
 }
 @media (max-width: 380px) {
-  .hero-brand-row { gap: 8px; }
+  .hero-brand-row { gap: 7px; }
   .hero-brand-mark {
-    flex-basis: 30px;
-    width: 30px;
-    height: 30px;
+    flex-basis: 48px;
+    width: 48px;
+    height: 48px;
   }
   .hero-brand-row h1 {
-    font-size: clamp(34px, 9.4vw, 39px);
-    letter-spacing: -2.5px;
+    font-size: clamp(32px, 9vw, 37px);
+    letter-spacing: -2.6px;
   }
 }
