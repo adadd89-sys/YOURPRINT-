@@ -748,8 +748,8 @@ footer { padding: 15px 0; }
   --garment-color: #eee;
   position: relative;
   width: 100%;
-  max-width: 400px;
-  height: 360px;
+  max-width: 420px;
+  height: 440px;
   margin: 0 auto;
   overflow: hidden;
   display: flex;
@@ -759,7 +759,7 @@ footer { padding: 15px 0; }
   border: 1px solid #303030;
   border-radius: 10px;
 }
-.garment-svg { position: absolute; width: 112%; height: 108%; overflow: visible; }
+.garment-svg { position: absolute; width: 130%; height: 116%; overflow: visible; }
 .garment-svg .garment-piece {
   fill: var(--garment-color);
   stroke: color-mix(in srgb, var(--garment-color), #080808 48%);
@@ -786,9 +786,9 @@ footer { padding: 15px 0; }
   stroke-linecap: round;
   opacity: .16;
 }
-.garment-svg.garment-hoodie { width: 116%; }
-.garment-svg.garment-sweatshirt { width: 114%; }
-.garment-svg.garment-tee { width: 112%; }
+.garment-svg.garment-hoodie { width: 132%; }
+.garment-svg.garment-sweatshirt { width: 130%; }
+.garment-svg.garment-tee { width: 128%; }
 /* Turn the garment itself to expose the shoulder area; keep artwork upright */
 
 .designer-artwork-frame {
@@ -916,7 +916,7 @@ footer { padding: 15px 0; }
 @media (min-width: 680px) {
   .designer-section { padding: 22px; }
   .designer-layout { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 22px; }
-  .designer-preview { height: 400px; }
+  .designer-preview { height: 440px; }
 }
 @media (max-width: 360px) {
   .hub-card { min-height: 136px; padding: 11px; }
