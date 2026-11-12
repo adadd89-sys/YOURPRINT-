@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { readAdminJson } from "../../lib/admin-api";
 
 type Summary = {
   totalOrders: number;
@@ -70,7 +71,7 @@ export function AdminInsights() {
       cache: "no-store"
     })
       .then(async (response) => {
-        const result = await response.json();
+        const result = await readAdminJson(response);
         if (!response.ok) throw new Error(result.error || "Не удалось загрузить аналитику.");
         return result as InsightsData;
       })
