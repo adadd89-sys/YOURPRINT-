@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         url: webhookUrl,
         secret_token: secret,
-        allowed_updates: ["message"]
+        allowed_updates: ["message", "channel_post"]
       }),
       signal: AbortSignal.timeout(20000)
     });
