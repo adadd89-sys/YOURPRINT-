@@ -378,7 +378,27 @@ footer {
 
 
 /* Customer account */
-.account-nav { color: #ddd; text-decoration: none; }
+.account-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 14px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  border: 1px solid #666;
+  border-radius: 7px;
+  background: #1b1b1b;
+  white-space: nowrap;
+  transition: background .2s ease, border-color .2s ease;
+}
+.account-nav:hover {
+  background: #292929;
+  border-color: #aaa;
+}
 .customer-account {
   margin: 0 0 34px;
   padding: 24px 18px;
