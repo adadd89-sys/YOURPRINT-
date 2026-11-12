@@ -7,7 +7,7 @@ export default function AccountPage() {
     <main className="page account-page">
       <header className="topbar">
         <a className="logo" href="/">YOURPRINT<span>.</span></a>
-        <Link className="account-back" href="/">← В ГЛАВНОЕ МЕНЮ</Link>
+        <Link className="section-home-link" href="/">← В ГЛАВНОЕ МЕНЮ</Link>
       </header>
       <section className="account-route-heading">
         <span className="section-kicker">YOURPRINT / ЛИЧНЫЙ КАБИНЕТ</span>
