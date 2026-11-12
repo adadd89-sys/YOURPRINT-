@@ -109,3 +109,18 @@ model PromoCode {
   createdAt   DateTime @default(now())
   orders      Order[]
 }
+
+model SiteSettings {
+  id            String   @id
+  contactsTitle String   @default("Контакты")
+  contactsIntro String   @default("Свяжитесь с нами — поможем с заказом и ответим на вопросы.")
+  phone         String   @default("")
+  telegram      String   @default("")
+  address       String   @default("")
+  workingHours  String   @default("")
+  instagram     String   @default("")
+  vk            String   @default("")
+  website       String   @default("")
+  extraInfo     String   @default("")
+  updatedAt     DateTime @updatedAt
+}
