@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "./prisma";
+import type { PrismaClient } from "@prisma/client";
+import { createPrismaClient } from "./prisma";
 import { validateTelegramInitData } from "./telegram-auth";
 
-export async function requireAdmin(request: NextRequest) {
+export async function requireAdmin(request: NextRequest, db: PrismaClient = createPrismaClient()) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const allowedIds = new Set(
     (process.env.ADMIN_TELEGRAM_IDS ?? "")
@@ -31,7 +32,7 @@ export async function requireAdmin(request: NextRequest) {
     return { response: NextResponse.json({ error: "Нет доступа к административной панели." }, { status: 403 }) } as const;
   }
 
-  const user = await prisma.user.upsert({
+  const user = await db.user.upsert({
     where: { telegramId: BigInt(telegramUser.id) },
     create: {
       telegramId: BigInt(telegramUser.id),
@@ -48,5 +49,5 @@ export async function requireAdmin(request: NextRequest) {
     }
   });
 
-  return { user } as const;
+  return { user, prisma: db } as const;
 }
