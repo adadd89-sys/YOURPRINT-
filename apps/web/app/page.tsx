@@ -5,7 +5,8 @@ const sections = [
   { number: "02", icon: "↗", title: "Оформить заказ", description: "Отправь готовый макет или опиши идею", href: "/order" },
   { number: "03", icon: "◎", title: "Личный кабинет", description: "Все твои заказы, статусы и история", href: "/account" },
   { number: "04", icon: "?", title: "Как это работает", description: "От идеи до готовой вещи — в несколько шагов", href: "#how-it-works" },
-  { number: "05", icon: "✉", title: "Контакты", description: "Связаться с нами и узнать подробности", href: "/contacts" }
+  { number: "05", icon: "✉", title: "Контакты", description: "Связаться с нами и узнать подробности", href: "/contacts" },
+  { number: "06", icon: "⚙", title: "Админ-панель", description: "Управление заказами и магазином", href: "/admin" }
 ];
 
 export default function HomePage() {
