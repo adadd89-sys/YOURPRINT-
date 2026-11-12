@@ -196,7 +196,7 @@ jobs:
 
           const token = process.env.TELEGRAM_BOT_TOKEN.trim();
           const adminId = (process.env.ADMIN_TELEGRAM_IDS || "").split(",").map(x => x.trim()).find(Boolean);
-          if (!adminId || !/^\\d+$/.test(adminId)) throw new Error("ADMIN_TELEGRAM_IDS must contain a numeric Telegram ID for admin API smoke tests.");
+          if (!adminId || !/^\d+$/.test(adminId)) throw new Error("ADMIN_TELEGRAM_IDS must contain a numeric Telegram ID for admin API smoke tests.");
 
           const params = new URLSearchParams({
             auth_date: String(Math.floor(Date.now() / 1000)),
@@ -206,7 +206,7 @@ jobs:
           const dataCheckString = [...params.entries()]
             .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
             .map(([key, value]) => `${key}=${value}`)
-            .join("\\n");
+            .join("\n");
           const secretKey = createHmac("sha256", "WebAppData").update(token).digest();
           params.set("hash", createHmac("sha256", secretKey).update(dataCheckString).digest("hex"));
           const headers = { "x-telegram-init-data": params.toString() };
