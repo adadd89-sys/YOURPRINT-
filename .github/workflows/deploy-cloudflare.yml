@@ -232,3 +232,24 @@ jobs:
 
           throw new Error(`Webhook registration failed after ${maxAttempts} attempts: ${lastError?.message || "unknown error"}`);
           NODE
+
+      - name: Diagnose Telegram webhook delivery
+        shell: bash
+        run: |
+          set -euo pipefail
+          response_file="$(mktemp)"
+          status="$(curl -sS -o "$response_file" -w '%{http_code}' \
+            -H "x-yourprint-register-secret: $TELEGRAM_WEBHOOK_SECRET" \
+            "https://yourprint.sergey-adadd89.workers.dev/api/telegram/diagnostics")"
+          body="$(cat "$response_file")"
+          rm -f "$response_file"
+          echo "Telegram webhook diagnostics (sensitive token and full webhook URL are not returned):"
+          printf '%s\n' "$body"
+          if [ "$status" != "200" ]; then
+            echo "Telegram diagnostics failed: HTTP $status"
+            exit 1
+          fi
+          if ! printf '%s' "$body" | grep -q '"ok":true'; then
+            echo "Telegram diagnostics returned an unexpected response."
+            exit 1
+          fi
