@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { readAdminJson } from "../../lib/admin-api";
 
 type Settings = {
   contactsTitle: string;
@@ -53,7 +54,7 @@ export function AdminContacts() {
     setInitData(data);
     fetch("/api/admin/contacts", { headers: { "x-telegram-init-data": data }, cache: "no-store" })
       .then(async (response) => {
-        const result = await response.json();
+        const result = await readAdminJson(response);
         if (!response.ok) throw new Error(result.error || "Не удалось загрузить контакты.");
         setSettings({ ...emptySettings, ...result.settings });
       })
@@ -76,7 +77,7 @@ export function AdminContacts() {
         headers: { "Content-Type": "application/json", "x-telegram-init-data": initData },
         body: JSON.stringify(settings)
       });
-      const result = await response.json();
+      const result = await readAdminJson(response);
       if (!response.ok) throw new Error(result.error || "Не удалось сохранить контакты.");
       setSettings({ ...emptySettings, ...result.settings });
       setNotice("Контактная информация сохранена.");
