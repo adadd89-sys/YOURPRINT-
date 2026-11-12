@@ -797,6 +797,18 @@ footer { padding: 15px 0; }
 .garment-svg.garment-hoodie { width: 91%; }
 .garment-svg.garment-sweatshirt { width: 89%; }
 .garment-svg.garment-tee { width: 86%; }
+/* Turn the garment itself to expose the shoulder area; keep artwork upright */
+.designer-preview.preview-shoulder .garment-svg {
+  width: 72%;
+  height: 108%;
+  transform: rotate(90deg);
+  transform-origin: 50% 50%;
+}
+.designer-preview.preview-shoulder .designer-artwork {
+  max-width: 22%;
+  max-height: 24%;
+}
+
 .designer-artwork {
   position: absolute;
   left: 50%;
