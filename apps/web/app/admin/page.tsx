@@ -53,7 +53,7 @@ export default function AdminPage() {
         <a className="logo" href="/">YOURPRINT<span>.</span></a>
         <h1>Доступ закрыт</h1>
         <p>{access === "outside" ? "Откройте эту страницу внутри Telegram Mini App." : access === "denied" ? "Этот Telegram-аккаунт не добавлен в список администраторов." : errorMessage || "Не удалось подтвердить Telegram. Переоткройте Mini App."}</p>
-        <a className="admin-back" href="/">Вернуться в магазин</a>
+        <a className="admin-back" href="/">Вернуться в главное меню</a>
       </main>
     );
   }
@@ -62,7 +62,7 @@ export default function AdminPage() {
     <main className="admin-page">
       <header className="admin-header">
         <a className="logo" href="/">YOURPRINT<span>.</span></a>
-        <span className="topbar-note">ADMIN PANEL</span>
+        <a className="admin-back" href="/">← В ГЛАВНОЕ МЕНЮ</a>
       </header>
       <nav className="admin-tabs" aria-label="Разделы администрирования">
         <button type="button" className={activeTab === "orders" ? "admin-tab active" : "admin-tab"} onClick={() => setActiveTab("orders")}>📋 Заказы</button>
