@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../../lib/prisma";
+import { createPrismaClient } from "../../../../lib/prisma";
 import { requireAdmin } from "../../../../lib/admin-auth";
 
 export const runtime = "nodejs";
@@ -17,9 +17,9 @@ const defaults = {
 };
 
 async function getAdminContacts(request: NextRequest) {
-  const auth = await requireAdmin(request);
+  const auth = await requireAdmin(request, createPrismaClient());
   if ("response" in auth) return auth.response;
-  const settings = await prisma.siteSettings.upsert({
+  const settings = await auth.prisma.siteSettings.upsert({
     where: { id: "contacts" },
     create: { id: "contacts", ...defaults },
     update: {}
@@ -47,7 +47,7 @@ export async function PUT(request: NextRequest) {
     data[field] = value.trim();
   }
 
-  const settings = await prisma.siteSettings.upsert({
+  const settings = await auth.prisma.siteSettings.upsert({
     where: { id: "contacts" },
     create: { id: "contacts", ...defaults, ...data },
     update: data
