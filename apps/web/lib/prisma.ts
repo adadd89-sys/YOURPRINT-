@@ -1,9 +1,7 @@
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
 
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
-
-function createPrismaClient() {
+export function createPrismaClient() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error("DATABASE_URL is required to connect to the YOURPRINT database");
@@ -13,8 +11,6 @@ function createPrismaClient() {
   return new PrismaClient({ adapter });
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
+// Do not cache PrismaClient in the Worker isolate: Neon I/O objects are request-scoped.
+// Routes should create one client per incoming request and pass it to their helpers.
+export const prisma = createPrismaClient();
