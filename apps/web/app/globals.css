@@ -791,17 +791,43 @@ footer { padding: 15px 0; }
 .garment-svg.garment-tee { width: 86%; }
 /* Turn the garment itself to expose the shoulder area; keep artwork upright */
 
-.designer-artwork {
+.designer-artwork-frame {
   position: absolute;
-  left: 50%;
   z-index: 2;
-  max-width: 75%;
-  max-height: 75%;
-  height: auto;
-  object-fit: contain;
   transform: translate(-50%, -50%);
-  filter: drop-shadow(0 1px 1px #0005);
+  max-width: 76%;
+  max-height: 82%;
+  background: #fff;
+  border: 1px solid #f4f4f4;
+  box-shadow: 0 1px 5px #0008;
 }
+.designer-artwork {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.artwork-measure-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(to right, #1115 1px, transparent 1px), linear-gradient(to bottom, #1115 1px, transparent 1px);
+  background-size: var(--grid-x-step) 100%, 100% var(--grid-y-step);
+  opacity: .55;
+}
+.artwork-measure-width, .artwork-measure-height {
+  position: absolute;
+  z-index: 3;
+  padding: 2px 4px;
+  color: #fff;
+  background: #111d;
+  border-radius: 3px;
+  font-size: 8px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.artwork-measure-width { top: -17px; left: 50%; transform: translateX(-50%); }
+.artwork-measure-height { top: 50%; right: calc(100% + 3px); transform: translateY(-50%) rotate(-90deg); transform-origin: right center; }
 .designer-placeholder {
   position: absolute;
   top: 49%;
@@ -831,6 +857,12 @@ footer { padding: 15px 0; }
   cursor: pointer;
 }
 .garment-option.active { color: #fff; border-color: #ddd; background: #262626; }
+.print-format-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.print-format-option { min-width: 0; min-height: 48px; display: grid; place-content: center; gap: 3px; padding: 6px 3px; color: #aaa; background: #0d0d0d; border: 1px solid #383838; border-radius: 7px; cursor: pointer; }
+.print-format-option strong { color: inherit; font-size: 12px; }
+.print-format-option small { color: #999; font-size: 8px; white-space: nowrap; }
+.print-format-option.active { color: #fff; border-color: #ddd; background: #262626; }
+.print-format-option.active small { color: #ddd; }
 .color-options { display: flex; gap: 10px; align-items: center; }
 .color-option { width: 27px; height: 27px; border: 2px solid #555; border-radius: 50%; cursor: pointer; }
 .color-option.active { outline: 2px solid #eee; outline-offset: 3px; }
