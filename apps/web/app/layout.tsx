@@ -4,7 +4,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "YOURPRINT — DTF-печать",
-  description: "Оформление заказов на DTF-печать"
+  description: "Оформление заказов на DTF-печать",
+  icons: { icon: "/yourprint-logo.svg", apple: "/yourprint-logo.svg" }
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
