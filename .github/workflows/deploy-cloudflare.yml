@@ -252,7 +252,7 @@ jobs:
         run: |
           set -euo pipefail
           tail_log="$(mktemp)"
-          npx wrangler tail yourprint --format pretty --sampling-rate 1 >"$tail_log" 2>&1 &
+          npx wrangler tail yourprint --format pretty --sampling-rate 0.99 >"$tail_log" 2>&1 &
           tail_pid=$!
           cleanup_tail() {
             kill "$tail_pid" 2>/dev/null || true
