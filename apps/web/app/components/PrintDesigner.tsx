@@ -125,7 +125,7 @@ export function PrintDesigner() {
             </svg>            {previewUrl ? <img className="designer-artwork" src={previewUrl} alt="Предпросмотр принта" style={{
               width: scale + "%",
               maxWidth: placement.includes("плече") || placement === "На рукаве" ? "34%" : "75%",
-              top: placement === "На левом плече" ? "74%" : placement === "На правом плече" ? "38%" : placement === "На рукаве" ? "43%" : placement === "Слева на груди" || placement === "Спина" ? "47%" : position + "%",
+              top: placement === "На левом плече" ? "66%" : placement === "На правом плече" ? "34%" : placement === "На рукаве" ? "43%" : placement === "Слева на груди" || placement === "Спина" ? "47%" : position + "%",
               left: placement.includes("плече") ? "19%" : placement === "На рукаве" ? "24%" : placement === "Слева на груди" ? "40%" : "50%",
               transform: "translate(-50%, -50%)"
             }} /> : <div className="designer-placeholder">ТВОЙ<br/>ДИЗАЙН</div>}
