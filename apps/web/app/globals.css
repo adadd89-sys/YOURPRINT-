@@ -378,27 +378,6 @@ footer {
 
 
 /* Customer account */
-.account-nav {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 38px;
-  padding: 0 14px;
-  color: #fff;
-  text-decoration: none;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  border: 1px solid #666;
-  border-radius: 7px;
-  background: #1b1b1b;
-  white-space: nowrap;
-  transition: background .2s ease, border-color .2s ease;
-}
-.account-nav:hover {
-  background: #292929;
-  border-color: #aaa;
-}
 .customer-account {
   margin: 0 0 34px;
   padding: 24px 18px;
@@ -895,15 +874,28 @@ footer { padding: 15px 0; }
 
 
 /* Dedicated customer account page */
-.account-back {
-  color: #ddd;
-  text-decoration: none;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 1px;
-}
 .account-route-heading { padding: 26px 0 18px; }
 .account-route-heading h1 { margin-top: 9px; font-size: clamp(34px, 9vw, 48px); letter-spacing: -2px; }
 .account-route-heading > p { margin: 10px 0 0; color: #aaa; font-size: 12px; line-height: 1.5; }
 .account-route-heading .session-bar,
 .account-route-heading .session-note { margin-top: 10px; }
+
+
+/* Consistent return-to-home button on every section */
+.section-home-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 11px;
+  color: #eee;
+  background: #202020;
+  border: 1px solid #505050;
+  border-radius: 7px;
+  text-decoration: none;
+  white-space: nowrap;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .6px;
+}
+.section-home-link:hover { background: #292929; border-color: #888; }
