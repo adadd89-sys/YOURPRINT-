@@ -3,7 +3,8 @@ import { TelegramSession } from "./components/TelegramSession";
 const sections = [
   { number: "01", icon: "✳", title: "Конструктор принта", description: "Загрузи изображение и настрой его на одежде", href: "/designer" },
   { number: "02", icon: "↗", title: "Оформить заказ", description: "Отправь готовый макет или опиши идею", href: "/order" },
-  { number: "03", icon: "?", title: "Как это работает", description: "От идеи до готовой вещи — в несколько шагов", href: "#how-it-works" }
+  { number: "03", icon: "◎", title: "Личный кабинет", description: "Все твои заказы, статусы и история", href: "/account" },
+  { number: "04", icon: "?", title: "Как это работает", description: "От идеи до готовой вещи — в несколько шагов", href: "#how-it-works" }
 ];
 
 export default function HomePage() {
@@ -11,7 +12,6 @@ export default function HomePage() {
     <main className="page">
       <header className="topbar">
         <a className="logo" href="/">YOURPRINT<span>.</span></a>
-        <a className="topbar-note account-nav" href="/account">ЛИЧНЫЙ КАБИНЕТ ↗</a>
       </header>
       <section className="hero">
         <p className="eyebrow">ПЕЧАТЬ, КОТОРАЯ ВЫДЕЛЯЕТ</p>
