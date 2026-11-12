@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createPrismaClient } from "../../../../lib/prisma";
 import { requireAdmin } from "../../../../lib/admin-auth";
 
 export const runtime = "nodejs";
@@ -17,7 +16,7 @@ const defaults = {
 };
 
 async function getAdminContacts(request: NextRequest) {
-  const auth = await requireAdmin(request, createPrismaClient());
+  const auth = await requireAdmin(request);
   if ("response" in auth) return auth.response;
   const settings = await auth.prisma.siteSettings.upsert({
     where: { id: "contacts" },
