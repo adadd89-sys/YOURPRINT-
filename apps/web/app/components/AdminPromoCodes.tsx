@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { readAdminJson } from "../../lib/admin-api";
 
 type Promo = {
   id: string;
@@ -36,7 +37,7 @@ export function AdminPromoCodes() {
       headers: { "x-telegram-init-data": data },
       cache: "no-store"
     });
-    const result = await response.json();
+    const result = await readAdminJson(response);
     if (!response.ok) throw new Error(result.error || "Не удалось загрузить промокоды.");
     setPromos(result.promoCodes);
   }, []);
@@ -70,7 +71,7 @@ export function AdminPromoCodes() {
           usageLimit: usageLimit || null
         })
       });
-      const result = await response.json();
+      const result = await readAdminJson(response);
       if (!response.ok) throw new Error(result.error || "Не удалось создать промокод.");
       setCode("");
       setDiscountPct(10);
@@ -96,7 +97,7 @@ export function AdminPromoCodes() {
         headers: { "Content-Type": "application/json", "x-telegram-init-data": initData },
         body: JSON.stringify({ id: promo.id, isActive: !promo.isActive })
       });
-      const result = await response.json();
+      const result = await readAdminJson(response);
       if (!response.ok) throw new Error(result.error || "Не удалось изменить промокод.");
       await load(initData);
     } catch (e) {
