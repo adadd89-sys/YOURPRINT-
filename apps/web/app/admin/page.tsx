@@ -21,19 +21,10 @@ export default function AdminPage() {
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
     const initData = webApp?.initData || sessionStorage.getItem("yourprint_telegram_init_data") || "";
-    if (!initData) {
-      setAccess("outside");
-      return;
-    }
-
+    if (!initData) { setAccess("outside"); return; }
     webApp?.ready();
     webApp?.expand();
-
-    fetch("/api/admin", {
-      method: "GET",
-      headers: { "x-telegram-init-data": initData },
-      cache: "no-store"
-    })
+    fetch("/api/admin", { method: "GET", headers: { "x-telegram-init-data": initData }, cache: "no-store" })
       .then(async (response) => {
         const data = await response.json() as { isAdmin?: boolean; error?: string };
         if (!response.ok) throw new Error(data.error || "HTTP " + response.status);
@@ -47,11 +38,10 @@ export default function AdminPage() {
   }, []);
 
   if (access === "loading") return <main className="admin-gate"><p>Проверяем доступ…</p></main>;
-
   if (access !== "allowed") {
     return (
       <main className="admin-gate">
-        <a className="logo" href="/">YOURPRINT<span>.</span></a>
+        <a className="brand-logo-link" href="/" aria-label="YOURPRINT — главная"><img className="brand-logo" src="/yourprint-logo.svg" alt="YOURPRINT" /></a>
         <h1>Доступ закрыт</h1>
         <p>{access === "outside" ? "Откройте эту страницу внутри Telegram Mini App." : access === "denied" ? "Этот Telegram-аккаунт не добавлен в список администраторов." : errorMessage || "Не удалось подтвердить Telegram. Переоткройте Mini App."}</p>
         <a className="section-home-link" href="/">Вернуться в главное меню</a>
@@ -62,7 +52,7 @@ export default function AdminPage() {
   return (
     <main className="admin-page">
       <header className="admin-header">
-        <a className="logo" href="/">YOURPRINT<span>.</span></a>
+        <a className="brand-logo-link" href="/" aria-label="YOURPRINT — главная"><img className="brand-logo" src="/yourprint-logo.svg" alt="YOURPRINT" /></a>
         <a className="section-home-link" href="/">← В ГЛАВНОЕ МЕНЮ</a>
       </header>
       <nav className="admin-tabs" aria-label="Разделы администрирования">
