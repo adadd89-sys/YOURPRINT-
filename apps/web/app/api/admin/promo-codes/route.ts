@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../../lib/prisma";
+import { createPrismaClient } from "../../../../lib/prisma";
 import { requireAdmin } from "../../../../lib/admin-auth";
 
 export const runtime = "nodejs";
@@ -12,10 +12,10 @@ function parseDate(value: unknown): Date | null | undefined {
 }
 
 async function getPromoCodes(request: NextRequest) {
-  const auth = await requireAdmin(request);
+  const auth = await requireAdmin(request, createPrismaClient());
   if ("response" in auth) return auth.response;
 
-  const promoCodes = await prisma.promoCode.findMany({
+  const promoCodes = await auth.prisma.promoCode.findMany({
     orderBy: { createdAt: "desc" },
     take: 200,
     select: {
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const promo = await prisma.promoCode.create({
+    const promo = await auth.prisma.promoCode.create({
       data: { code, discountPct, startsAt, expiresAt, usageLimit },
       select: { id: true, code: true, discountPct: true, isActive: true, startsAt: true, expiresAt: true, usageLimit: true, usageCount: true }
     });
@@ -100,7 +100,7 @@ export async function PATCH(request: NextRequest) {
   if (typeof body.id !== "string" || typeof body.isActive !== "boolean") {
     return NextResponse.json({ error: "Не указаны промокод или новое состояние." }, { status: 400 });
   }
-  const result = await prisma.promoCode.updateMany({
+  const result = await auth.prisma.promoCode.updateMany({
     where: { id: body.id },
     data: { isActive: body.isActive }
   });
