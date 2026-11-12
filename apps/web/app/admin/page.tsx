@@ -5,6 +5,7 @@ import { AdminOrders } from "../components/AdminOrders";
 import { AdminPromoCodes } from "../components/AdminPromoCodes";
 import { AdminInsights } from "../components/AdminInsights";
 import { AdminContacts } from "../components/AdminContacts";
+import { AdminNotifications } from "../components/AdminNotifications";
 
 type AccessState = "loading" | "allowed" | "denied" | "outside" | "error";
 
@@ -17,7 +18,7 @@ declare global {
 export default function AdminPage() {
   const [access, setAccess] = useState<AccessState>("loading");
   const [errorMessage, setErrorMessage] = useState("");
-  const [activeTab, setActiveTab] = useState<"orders" | "insights" | "promos" | "contacts">("orders");
+  const [activeTab, setActiveTab] = useState<"orders" | "insights" | "promos" | "contacts" | "notifications">("orders");
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
@@ -61,8 +62,9 @@ export default function AdminPage() {
         <button type="button" className={activeTab === "insights" ? "admin-tab active" : "admin-tab"} onClick={() => setActiveTab("insights")}>📊 Обзор</button>
         <button type="button" className={activeTab === "promos" ? "admin-tab active" : "admin-tab"} onClick={() => setActiveTab("promos")}>🏷 Промокоды</button>
         <button type="button" className={activeTab === "contacts" ? "admin-tab active" : "admin-tab"} onClick={() => setActiveTab("contacts")}>☎ Контакты</button>
+        <button type="button" className={activeTab === "notifications" ? "admin-tab active" : "admin-tab"} onClick={() => setActiveTab("notifications")}>🔔 Уведомления</button>
       </nav>
-      {activeTab === "orders" ? <AdminOrders /> : activeTab === "insights" ? <AdminInsights /> : activeTab === "promos" ? <AdminPromoCodes /> : <AdminContacts />}
+      {activeTab === "orders" ? <AdminOrders /> : activeTab === "insights" ? <AdminInsights /> : activeTab === "promos" ? <AdminPromoCodes /> : activeTab === "contacts" ? <AdminContacts /> : <AdminNotifications />}
     </main>
   );
 }

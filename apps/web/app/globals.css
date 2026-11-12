@@ -1051,3 +1051,28 @@ a.contact-card:active { background: #222; }
   .contacts-grid { grid-template-columns: 1fr; }
   .contacts-admin { padding: 19px 14px; }
 }
+
+
+/* Admin order-status notification preferences */
+.notification-settings { display: grid; gap: 10px; margin: 22px 0 50px; }
+.notification-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 15px;
+  background: #141414;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  cursor: pointer;
+}
+.notification-copy { display: grid; gap: 5px; min-width: 0; }
+.notification-copy strong { color: var(--text); font-size: 13px; }
+.notification-copy small { color: var(--muted); font-size: 11px; line-height: 1.45; }
+.notification-row input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  margin: 0;
+  accent-color: #e6e6e6;
+}

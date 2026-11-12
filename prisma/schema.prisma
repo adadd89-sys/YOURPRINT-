@@ -122,5 +122,11 @@ model SiteSettings {
   vk            String   @default("")
   website       String   @default("")
   extraInfo     String   @default("")
+  notifyNew     Boolean  @default(true)
+  notifyAccepted Boolean @default(true)
+  notifyInProgress Boolean @default(true)
+  notifyReady   Boolean  @default(true)
+  notifyCompleted Boolean @default(true)
+  notifyCancelled Boolean @default(true)
   updatedAt     DateTime @updatedAt
 }

@@ -5,13 +5,20 @@ export const runtime = "nodejs";
 
 const statuses = new Set(["NEW", "ACCEPTED", "IN_PROGRESS", "READY", "COMPLETED", "CANCELLED"]);
 
+const notificationFields = {
+  NEW: "notifyNew",
+  ACCEPTED: "notifyAccepted",
+  IN_PROGRESS: "notifyInProgress",
+  READY: "notifyReady",
+  COMPLETED: "notifyCompleted",
+  CANCELLED: "notifyCancelled"
+} as const;
+
 export async function GET(request: NextRequest) {
   const auth = await requireAdmin(request);
   if ("response" in auth) return auth.response;
 
   const status = request.nextUrl.searchParams.get("status");
-  // По умолчанию отменённые заказы скрыты из общего списка.
-  // При выборе фильтра «Отменён» их по-прежнему можно открыть отдельно.
   const where = status && statuses.has(status)
     ? { status: status as
         | "NEW" | "ACCEPTED" | "IN_PROGRESS" | "READY" | "COMPLETED" | "CANCELLED" }
@@ -141,15 +148,36 @@ export async function PATCH(request: NextRequest) {
       COMPLETED: "Завершён",
       CANCELLED: "Отменён"
     };
-    if (token) {
-      await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: existing.customer.telegramId.toString(),
-          text: `Статус вашего заказа YOURPRINT №${existing.number} изменён: ${labels[nextStatus]}.${comment ? `\nКомментарий: ${comment}` : ""}`
-        })
-      }).catch(() => undefined);
+    const notificationSetting = await auth.prisma.siteSettings.findUnique({
+      where: { id: "notifications" },
+      select: { ...{
+        notifyNew: true,
+        notifyAccepted: true,
+        notifyInProgress: true,
+        notifyReady: true,
+        notifyCompleted: true,
+        notifyCancelled: true
+      } }
+    });
+    const notificationEnabled = notificationSetting?.[notificationFields[nextStatus]] ?? true;
+
+    if (token && notificationEnabled) {
+      try {
+        const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: existing.customer.telegramId.toString(),
+            text: `Статус вашего заказа YOURPRINT №${existing.number} изменён: ${labels[nextStatus]}.${comment ? `\nКомментарий: ${comment}` : ""}`
+          })
+        });
+        const result = await response.json() as { ok?: boolean; description?: string };
+        if (!response.ok || !result.ok) {
+          console.error("[order-status-notification] Telegram delivery failed", response.status, result.description || "");
+        }
+      } catch (error) {
+        console.error("[order-status-notification] Telegram request failed", error);
+      }
     }
   }
 
@@ -162,7 +190,6 @@ export async function PATCH(request: NextRequest) {
     }
   });
 }
-
 
 export async function POST(request: NextRequest) {
   const auth = await requireAdmin(request);
@@ -253,15 +280,27 @@ export async function POST(request: NextRequest) {
   });
 
   const token = process.env.TELEGRAM_BOT_TOKEN;
-  if (token) {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: telegramId,
-        text: `Для вас создан заказ YOURPRINT №${order.number}. Изделие: ${productName}, размер ${size}, количество: ${quantity}. Мы свяжемся с вами для уточнения деталей.`
-      })
-    }).catch(() => undefined);
+  const notificationSetting = await auth.prisma.siteSettings.findUnique({
+    where: { id: "notifications" },
+    select: { notifyNew: true }
+  });
+  if (token && (notificationSetting?.notifyNew ?? true)) {
+    try {
+      const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: telegramId,
+          text: `Для вас создан заказ YOURPRINT №${order.number}. Изделие: ${productName}, размер ${size}, количество: ${quantity}. Мы свяжемся с вами для уточнения деталей.`
+        })
+      });
+      const result = await response.json() as { ok?: boolean; description?: string };
+      if (!response.ok || !result.ok) {
+        console.error("[order-created-notification] Telegram delivery failed", response.status, result.description || "");
+      }
+    } catch (error) {
+      console.error("[order-created-notification] Telegram request failed", error);
+    }
   }
 
   return NextResponse.json({

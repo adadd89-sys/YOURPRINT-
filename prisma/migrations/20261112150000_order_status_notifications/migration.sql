@@ -1,0 +1,7 @@
+ALTER TABLE "SiteSettings"
+  ADD COLUMN "notifyNew" BOOLEAN NOT NULL DEFAULT true,
+  ADD COLUMN "notifyAccepted" BOOLEAN NOT NULL DEFAULT true,
+  ADD COLUMN "notifyInProgress" BOOLEAN NOT NULL DEFAULT true,
+  ADD COLUMN "notifyReady" BOOLEAN NOT NULL DEFAULT true,
+  ADD COLUMN "notifyCompleted" BOOLEAN NOT NULL DEFAULT true,
+  ADD COLUMN "notifyCancelled" BOOLEAN NOT NULL DEFAULT true;
