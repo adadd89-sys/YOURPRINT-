@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createPrismaClient } from "../../../../lib/prisma";
 import { requireAdmin } from "../../../../lib/admin-auth";
 
 export const runtime = "nodejs";
@@ -15,7 +14,7 @@ function monthRange(value: string | null) {
 }
 
 async function getAnalytics(request: NextRequest) {
-  const auth = await requireAdmin(request, createPrismaClient());
+  const auth = await requireAdmin(request);
   if ("response" in auth) return auth.response;
 
   const range = monthRange(request.nextUrl.searchParams.get("month"));
