@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AdminOrders } from "../components/AdminOrders";
 import { AdminPromoCodes } from "../components/AdminPromoCodes";
+import { AdminInsights } from "../components/AdminInsights";
 
 type AccessState = "loading" | "allowed" | "denied" | "outside" | "error";
 
@@ -15,7 +16,7 @@ declare global {
 export default function AdminPage() {
   const [access, setAccess] = useState<AccessState>("loading");
   const [errorMessage, setErrorMessage] = useState("");
-  const [activeTab, setActiveTab] = useState<"orders" | "promos">("orders");
+  const [activeTab, setActiveTab] = useState<"orders" | "insights" | "promos">("orders");
 
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
@@ -66,9 +67,10 @@ export default function AdminPage() {
       </header>
       <nav className="admin-tabs" aria-label="Разделы администрирования">
         <button type="button" className={activeTab === "orders" ? "admin-tab active" : "admin-tab"} onClick={() => setActiveTab("orders")}>📋 Заказы</button>
+        <button type="button" className={activeTab === "insights" ? "admin-tab active" : "admin-tab"} onClick={() => setActiveTab("insights")}>📊 Обзор</button>
         <button type="button" className={activeTab === "promos" ? "admin-tab active" : "admin-tab"} onClick={() => setActiveTab("promos")}>🏷 Промокоды</button>
       </nav>
-      {activeTab === "orders" ? <AdminOrders /> : <AdminPromoCodes />}
+      {activeTab === "orders" ? <AdminOrders /> : activeTab === "insights" ? <AdminInsights /> : <AdminPromoCodes />}
     </main>
   );
 }
