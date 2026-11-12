@@ -3,6 +3,7 @@
 import { ChangeEvent, CSSProperties, useEffect, useState } from "react";
 
 const sizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+const printFormats = { A5: { width: 14.8, height: 21 }, A4: { width: 21, height: 29.7 }, A3: { width: 29.7, height: 42 } } as const;
 const garments = [
   { id: "Футболка", label: "Футболка", shape: "tee" },
   { id: "Худи", label: "Худи", shape: "hoodie" },
@@ -16,7 +17,7 @@ export function PrintDesigner() {
   const [quantity, setQuantity] = useState(1);
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState("");
-  const [scale, setScale] = useState(42);
+  const [printFormat, setPrintFormat] = useState<keyof typeof printFormats>("A4");
   const [position, setPosition] = useState(48);
   const [placement, setPlacement] = useState("По центру груди");
   const [comment, setComment] = useState("");
@@ -59,7 +60,7 @@ export function PrintDesigner() {
         "ЗАКАЗ ИЗ КОНСТРУКТОРА ПРИНТОВ",
         `Цвет изделия: ${color}`,
         `Расположение: ${placement}`,
-        `Размер принта: ${scale}%`,
+        `Формат принта: ${printFormat} — ${printFormats[printFormat].width} × ${printFormats[printFormat].height} см (ширина × высота)`,
         `Положение принта: ${position}%`,
         comment.trim()
       ].filter(Boolean).join("\\n"));
@@ -122,13 +123,17 @@ export function PrintDesigner() {
                 )}
                 <path className="garment-highlight" d="M105 67 83 78 43 112 58 151 M215 67 237 78 277 112 262 151 M101 132 103 280 M219 132 217 280" />
               </g>
-            </svg>            {previewUrl ? <img className="designer-artwork" src={previewUrl} alt="Предпросмотр принта" style={{
-              width: scale + "%",
-              maxWidth: placement.includes("плече") || placement === "На рукаве" ? "34%" : "75%",
+            </svg>            {previewUrl ? <div className="designer-artwork-frame" style={{
+              width: \`\${(printFormats[printFormat].width / 29.7) * 56.6}%\`,
+              aspectRatio: \`\${printFormats[printFormat].width} / \${printFormats[printFormat].height}\`,
               top: placement === "На левом плече" ? "66%" : placement === "На правом плече" ? "34%" : placement === "На рукаве" ? "43%" : placement === "Слева на груди" || placement === "Спина" ? "47%" : position + "%",
-              left: placement.includes("плече") ? "19%" : placement === "На рукаве" ? "24%" : placement === "Слева на груди" ? "40%" : "50%",
-              transform: "translate(-50%, -50%)"
-            }} /> : <div className="designer-placeholder">ТВОЙ<br/>ДИЗАЙН</div>}
+              left: placement.includes("плече") ? "19%" : placement === "На рукаве" ? "24%" : placement === "Слева на груди" ? "40%" : "50%"
+            }}>
+              <img className="designer-artwork" src={previewUrl} alt="Предпросмотр принта" />
+              <div className="artwork-measure-grid" style={{ "--grid-x-step": \`\${100 / printFormats[printFormat].width}%\`, "--grid-y-step": \`\${100 / printFormats[printFormat].height}%\` } as CSSProperties} />
+              <span className="artwork-measure-width">{printFormats[printFormat].width} см</span>
+              <span className="artwork-measure-height">{printFormats[printFormat].height} см</span>
+            </div> : <div className="designer-placeholder">ТВОЙ<br/>ДИЗАЙН</div>}
             <span className="preview-label">ПРЕДВАРИТЕЛЬНЫЙ ВИД</span>
           </div>
           <p className="designer-preview-note">Предпросмотр схематичный. Итоговый размер и размещение согласуем перед печатью.</p>
@@ -160,10 +165,11 @@ export function PrintDesigner() {
             </select>
           </label>
 
-          <label className="designer-label">Размер принта · {scale}%
-            <input type="range" min="20" max="75" value={scale} onChange={(e) => setScale(Number(e.target.value))} />
-          </label>
-          <label className="designer-label">Положение по высоте · {position}%
+          <div className="designer-label">4. Формат принта
+            <div className="print-format-options">
+              {(Object.keys(printFormats) as (keyof typeof printFormats)[]).map((format) => <button type="button" key={format} className={printFormat === format ? "print-format-option active" : "print-format-option"} onClick={() => setPrintFormat(format)}><strong>{format}</strong><small>{printFormats[format].width} × {printFormats[format].height} см</small></button>)}
+            </div>
+          </div>         <label className="designer-label">Положение по высоте · {position}%
             <input type="range" min="25" max="72" value={position} onChange={(e) => setPosition(Number(e.target.value))} />
           </label>
 
