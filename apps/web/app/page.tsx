@@ -1,12 +1,10 @@
 import { TelegramSession } from "./components/TelegramSession";
 import { OrderForm } from "./components/OrderForm";
-import { CustomerAccount } from "./components/CustomerAccount";
 
 const sections = [
   { number: "01", icon: "✳", title: "Конструктор принта", description: "Загрузи изображение и настрой его на одежде", href: "/designer" },
   { number: "02", icon: "↗", title: "Оформить заказ", description: "Отправь готовый макет или опиши идею", href: "#order" },
-  { number: "03", icon: "▤", title: "Мои заказы", description: "Статусы, детали и история заказов", href: "#account" },
-  { number: "04", icon: "?", title: "Как это работает", description: "От идеи до готовой вещи — в несколько шагов", href: "#how-it-works" }
+  { number: "03", icon: "?", title: "Как это работает", description: "От идеи до готовой вещи — в несколько шагов", href: "#how-it-works" }
 ];
 
 export default function HomePage() {
@@ -14,7 +12,7 @@ export default function HomePage() {
     <main className="page">
       <header className="topbar">
         <a className="logo" href="/">YOURPRINT<span>.</span></a>
-        <a className="topbar-note account-nav" href="#account">ЛИЧНЫЙ КАБИНЕТ ↗</a>
+        <a className="topbar-note account-nav" href="/account">ЛИЧНЫЙ КАБИНЕТ ↗</a>
       </header>
       <section className="hero">
         <p className="eyebrow">ПЕЧАТЬ, КОТОРАЯ ВЫДЕЛЯЕТ</p>
@@ -37,7 +35,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <CustomerAccount />
       <div id="order"><OrderForm /></div>
       <section className="how-section" id="how-it-works">
         <span className="section-kicker">ПРОСТОЙ ПРОЦЕСС</span>
