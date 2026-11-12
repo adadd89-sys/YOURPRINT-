@@ -16,7 +16,7 @@ const defaults = {
   instagram: "", vk: "", website: "", extraInfo: ""
 };
 
-export async function GET(request: NextRequest) {
+async function getAdminContacts(request: NextRequest) {
   const auth = await requireAdmin(request);
   if ("response" in auth) return auth.response;
   const settings = await prisma.siteSettings.upsert({
@@ -53,4 +53,17 @@ export async function PUT(request: NextRequest) {
     update: data
   });
   return NextResponse.json({ success: true, settings });
+}
+
+
+export async function GET(request: NextRequest) {
+  try {
+    return await getAdminContacts(request);
+  } catch (error) {
+    console.error("[admin/contacts] GET failed", error);
+    return NextResponse.json(
+      { error: "Не удалось загрузить контакты. Ошибка записана в журнал сервера." },
+      { status: 500 }
+    );
+  }
 }
