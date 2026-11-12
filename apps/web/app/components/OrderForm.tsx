@@ -79,7 +79,6 @@ export function OrderForm() {
   return (
     <form className="order-form" id="order-form" onSubmit={submit}>
       <div className="form-heading">
-        <span>02 / НОВЫЙ ЗАКАЗ</span>
         <h2>Расскажите, что напечатать</h2>
       </div>
 
