@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createPrismaClient } from "../../../../lib/prisma";
 import { requireAdmin } from "../../../../lib/admin-auth";
 
 export const runtime = "nodejs";
@@ -12,7 +11,7 @@ function parseDate(value: unknown): Date | null | undefined {
 }
 
 async function getPromoCodes(request: NextRequest) {
-  const auth = await requireAdmin(request, createPrismaClient());
+  const auth = await requireAdmin(request);
   if ("response" in auth) return auth.response;
 
   const promoCodes = await auth.prisma.promoCode.findMany({
