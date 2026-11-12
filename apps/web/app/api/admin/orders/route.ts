@@ -11,8 +11,12 @@ export async function GET(request: NextRequest) {
   if ("response" in auth) return auth.response;
 
   const status = request.nextUrl.searchParams.get("status");
-  const where = status && statuses.has(status) ? { status: status as
-    | "NEW" | "ACCEPTED" | "IN_PROGRESS" | "READY" | "COMPLETED" | "CANCELLED" } : {};
+  // По умолчанию отменённые заказы скрыты из общего списка.
+  // При выборе фильтра «Отменён» их по-прежнему можно открыть отдельно.
+  const where = status && statuses.has(status)
+    ? { status: status as
+        | "NEW" | "ACCEPTED" | "IN_PROGRESS" | "READY" | "COMPLETED" | "CANCELLED" }
+    : { status: { not: "CANCELLED" as const } };
 
   const orders = await prisma.order.findMany({
     where,
