@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../../lib/prisma";
+import { createPrismaClient } from "../../../../lib/prisma";
 import { requireAdmin } from "../../../../lib/admin-auth";
 
 export const runtime = "nodejs";
@@ -15,7 +15,7 @@ function monthRange(value: string | null) {
 }
 
 async function getAnalytics(request: NextRequest) {
-  const auth = await requireAdmin(request);
+  const auth = await requireAdmin(request, createPrismaClient());
   if ("response" in auth) return auth.response;
 
   const range = monthRange(request.nextUrl.searchParams.get("month"));
@@ -31,24 +31,24 @@ async function getAnalytics(request: NextRequest) {
     popularProducts,
     calendarOrders
   ] = await Promise.all([
-    prisma.order.count(),
-    prisma.order.count({ where: { status: { in: ["NEW", "ACCEPTED", "IN_PROGRESS", "READY"] } } }),
-    prisma.order.count({ where: completedWhere }),
-    prisma.order.count({ where: { status: "CANCELLED" } }),
-    prisma.order.aggregate({
+    auth.prisma.order.count(),
+    auth.prisma.order.count({ where: { status: { in: ["NEW", "ACCEPTED", "IN_PROGRESS", "READY"] } } }),
+    auth.prisma.order.count({ where: completedWhere }),
+    auth.prisma.order.count({ where: { status: "CANCELLED" } }),
+    auth.prisma.order.aggregate({
       where: completedWhere,
       _sum: { totalPrice: true },
       _avg: { totalPrice: true },
       _count: { totalPrice: true }
     }),
-    prisma.orderItem.groupBy({
+    auth.prisma.orderItem.groupBy({
       by: ["productName"],
       _sum: { quantity: true },
       _count: { productName: true },
       orderBy: { _sum: { quantity: "desc" } },
       take: 5
     }),
-    prisma.order.findMany({
+    auth.prisma.order.findMany({
       where: {
         OR: [
           { deadline: { gte: range.start, lt: range.end } },
