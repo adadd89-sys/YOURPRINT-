@@ -1,9 +1,8 @@
 import { TelegramSession } from "./components/TelegramSession";
-import { OrderForm } from "./components/OrderForm";
 
 const sections = [
   { number: "01", icon: "✳", title: "Конструктор принта", description: "Загрузи изображение и настрой его на одежде", href: "/designer" },
-  { number: "02", icon: "↗", title: "Оформить заказ", description: "Отправь готовый макет или опиши идею", href: "#order" },
+  { number: "02", icon: "↗", title: "Оформить заказ", description: "Отправь готовый макет или опиши идею", href: "/order" },
   { number: "03", icon: "?", title: "Как это работает", description: "От идеи до готовой вещи — в несколько шагов", href: "#how-it-works" }
 ];
 
@@ -35,7 +34,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <div id="order"><OrderForm /></div>
       <section className="how-section" id="how-it-works">
         <span className="section-kicker">ПРОСТОЙ ПРОЦЕСС</span>
         <h2>От идеи до готовой вещи</h2>
