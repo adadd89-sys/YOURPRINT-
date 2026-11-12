@@ -5,7 +5,7 @@ import { requireAdmin } from "../../../../lib/admin-auth";
 export const runtime = "nodejs";
 
 function monthRange(value: string | null) {
-  if (!value || !/^\\d{4}-\\d{2}$/.test(value)) return null;
+  if (!value || !/^\d{4}-\d{2}$/.test(value)) return null;
   const [year, month] = value.split("-").map(Number);
   if (month < 1 || month > 12) return null;
   return {
