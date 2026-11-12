@@ -1,4 +1,5 @@
 import { TelegramSession } from "./components/TelegramSession";
+import { AdminOnlyCard } from "./components/AdminOnlyCard";
 
 const sections = [
   { number: "01", icon: "✳", title: "Конструктор принта", description: "Загрузи изображение и настрой его на одежде", href: "/designer" },
@@ -6,7 +7,6 @@ const sections = [
   { number: "03", icon: "◎", title: "Личный кабинет", description: "Все твои заказы, статусы и история", href: "/account" },
   { number: "04", icon: "?", title: "Как это работает", description: "От идеи до готовой вещи — в несколько шагов", href: "#how-it-works" },
   { number: "05", icon: "✉", title: "Контакты", description: "Связаться с нами и узнать подробности", href: "/contacts" },
-  { number: "06", icon: "⚙", title: "Админ-панель", description: "Управление заказами и магазином", href: "/admin" }
 ];
 
 export default function HomePage() {
@@ -30,6 +30,7 @@ export default function HomePage() {
               <strong>{section.title}</strong><small>{section.description}</small><span className="hub-arrow">ОТКРЫТЬ ↗</span>
             </a>
           ))}
+          <AdminOnlyCard />
         </div>
       </section>
       <section className="how-section" id="how-it-works">
