@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../../lib/prisma";
+import { createPrismaClient } from "../../../../lib/prisma";
 import { requireAdmin } from "../../../../lib/admin-auth";
 
 export const runtime = "nodejs";
@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 const statuses = new Set(["NEW", "ACCEPTED", "IN_PROGRESS", "READY", "COMPLETED", "CANCELLED"]);
 
 export async function GET(request: NextRequest) {
-  const auth = await requireAdmin(request);
+  const auth = await requireAdmin(request, createPrismaClient());
   if ("response" in auth) return auth.response;
 
   const status = request.nextUrl.searchParams.get("status");
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
         | "NEW" | "ACCEPTED" | "IN_PROGRESS" | "READY" | "COMPLETED" | "CANCELLED" }
     : { status: { not: "CANCELLED" as const } };
 
-  const orders = await prisma.order.findMany({
+  const orders = await auth.prisma.order.findMany({
     where,
     orderBy: [{ createdAt: "desc" }],
     take: 100,
@@ -98,7 +98,7 @@ export async function PATCH(request: NextRequest) {
     }
   }
 
-  const existing = await prisma.order.findUnique({
+  const existing = await auth.prisma.order.findUnique({
     where: { id: body.orderId },
     include: { customer: true }
   });
@@ -108,7 +108,7 @@ export async function PATCH(request: NextRequest) {
     | "NEW" | "ACCEPTED" | "IN_PROGRESS" | "READY" | "COMPLETED" | "CANCELLED" | undefined;
   const comment = typeof body.comment === "string" ? body.comment.trim().slice(0, 500) : "";
 
-  const updated = await prisma.$transaction(async (tx) => {
+  const updated = await auth.prisma.$transaction(async (tx) => {
     const order = await tx.order.update({
       where: { id: existing.id },
       data: {
@@ -228,13 +228,13 @@ export async function POST(request: NextRequest) {
     totalPrice = rawPrice;
   }
 
-  const customer = await prisma.user.upsert({
+  const customer = await auth.prisma.user.upsert({
     where: { telegramId: BigInt(telegramId) },
     create: { telegramId: BigInt(telegramId), role: "CUSTOMER" },
     update: {}
   });
 
-  const order = await prisma.order.create({
+  const order = await auth.prisma.order.create({
     data: {
       customerId: customer.id,
       artworkType: artworkType as "READY" | "CREATE_NEW",
