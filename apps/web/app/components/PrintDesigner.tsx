@@ -101,7 +101,7 @@ export function PrintDesigner() {
               <g filter="url(#fabricShadow)">
                 {isHoodie ? (
                   <>
-                    <path className="garment-piece" d="M111 61 76 70 27 112 54 181 88 160 91 302 Q160 321 229 302 L232 160 266 181 293 112 244 70 209 61 194 87 Q160 116 126 87Z" />
+                    <path className="garment-piece" d="M111 61 78 70 48 112 68 174 82 158 78 302 Q160 321 242 302 L238 158 252 174 272 112 242 70 209 61 194 87 Q160 116 126 87Z" />
                     <path className="garment-detail" d="M111 61 Q111 112 160 119 Q209 112 209 61 L194 24 Q160 -2 126 24Z" />
                     <path className="garment-line" d="M126 26 Q128 76 160 89 Q192 76 194 26 M160 89 160 117" />
                     <path className="garment-detail" d="M126 220 Q160 232 194 220 L205 275 Q160 294 115 275Z" />
@@ -109,16 +109,16 @@ export function PrintDesigner() {
                   </>
                 ) : isSweatshirt ? (
                   <>
-                    <path className="garment-piece" d="M111 52 76 67 29 108 54 174 87 154 90 291 Q160 310 230 291 L233 154 266 174 291 108 244 67 209 52 Q205 104 160 111 Q115 104 111 52Z" />
+                    <path className="garment-piece" d="M111 52 78 67 48 108 68 168 82 152 78 291 Q160 310 242 291 L238 152 252 168 272 108 242 67 209 52 Q205 104 160 111 Q115 104 111 52Z" />
                     <path className="garment-detail" d="M111 52 Q112 104 160 111 Q208 104 209 52 Q205 78 160 83 Q115 78 111 52Z" />
                     <path className="garment-detail" d="M89 280 Q160 300 231 280 L230 305 Q160 326 90 305Z M52 159 65 165 77 151 86 157 75 181 60 185Z M268 159 255 165 243 151 234 157 245 181 260 185Z" />
-                    <path className="garment-line" d="M111 52 Q112 104 160 111 Q208 104 209 52 M90 291 Q160 310 230 291" />
+                    <path className="garment-line" d="M111 52 Q112 104 160 111 Q208 104 209 52 M78 291 Q160 310 242 291" />
                   </>
                 ) : (
                   <>
-                    <path className="garment-piece" d="M111 52 76 67 29 108 54 174 87 154 90 302 Q160 321 230 302 L233 154 266 174 291 108 244 67 209 52 Q205 104 160 111 Q115 104 111 52Z" />
+                    <path className="garment-piece" d="M111 52 78 67 48 108 68 168 82 152 78 302 Q160 321 242 302 L238 152 252 168 272 108 242 67 209 52 Q205 104 160 111 Q115 104 111 52Z" />
                     <path className="garment-detail" d="M111 52 Q112 104 160 111 Q208 104 209 52 Q205 78 160 83 Q115 78 111 52Z" />
-                    <path className="garment-line" d="M111 52 Q112 104 160 111 Q208 104 209 52 M90 302 Q160 321 230 302" />
+                    <path className="garment-line" d="M111 52 Q112 104 160 111 Q208 104 209 52 M78 302 Q160 321 242 302" />
                   </>
                 )}
                 <path className="garment-highlight" d="M105 67 83 78 43 112 58 151 M215 67 237 78 277 112 262 151 M101 132 103 280 M219 132 217 280" />
