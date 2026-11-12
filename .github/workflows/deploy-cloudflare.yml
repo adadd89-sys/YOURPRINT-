@@ -191,6 +191,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          tail_log="$(mktemp)"
+          npx wrangler tail yourprint --format pretty --sampling-rate 1 >"$tail_log" 2>&1 &
+          tail_pid=$!
+          cleanup_tail() {
+            kill "$tail_pid" 2>/dev/null || true
+            wait "$tail_pid" 2>/dev/null || true
+          }
+          trap 'cleanup_tail; rm -f "$tail_log"' EXIT
+          sleep 5
+          set +e
           node --input-type=module <<'NODE'
           import { createHmac } from "node:crypto";
 
@@ -250,6 +260,12 @@ jobs:
             process.exit(1);
           }
           NODE
+          smoke_status=$?
+          sleep 2
+          cleanup_tail
+          echo "Cloudflare Worker exception diagnostics:"
+          grep -E -A 8 -B 2 'Exception Thrown|ERROR|Error:|TypeError:|Prisma' "$tail_log" | tail -n 100 | sed -E 's#(postgres(ql)?://)[^ ]+#\\1<redacted>#g' || true
+          exit "$smoke_status"
 
       - name: Register Telegram webhook through Cloudflare
         shell: bash
