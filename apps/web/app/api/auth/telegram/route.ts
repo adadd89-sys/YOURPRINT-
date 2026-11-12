@@ -52,7 +52,8 @@ async function handlePost(request: NextRequest) {
   try {
     // Import lazily so initialization errors (for example, a missing DATABASE_URL)
     // are caught and returned as a diagnostic instead of crashing the route module.
-    const { prisma } = await import("../../../../lib/prisma");
+    const { createPrismaClient } = await import("../../../../lib/prisma");
+    const prisma = createPrismaClient();
     user = await prisma.user.upsert({
       where: { telegramId: BigInt(telegramUser.id) },
       create: {

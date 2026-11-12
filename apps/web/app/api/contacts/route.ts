@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "../../../lib/prisma";
+import { createPrismaClient } from "../../../lib/prisma";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,6 +12,7 @@ const defaults = {
 };
 
 export async function GET() {
+  const prisma = createPrismaClient();
   const settings = await prisma.siteSettings.findUnique({
     where: { id: "contacts" },
     select: {

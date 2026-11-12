@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../lib/prisma";
+import { createPrismaClient } from "../../../lib/prisma";
 import { validateTelegramInitData } from "../../../lib/telegram-auth";
 
 export const runtime = "nodejs";
@@ -108,6 +108,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  const prisma = createPrismaClient();
   const user = await prisma.user.upsert({
     where: { telegramId: BigInt(telegramUser.id) },
     create: {

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../../../../lib/prisma";
 import { requireAdmin } from "../../../../../../lib/admin-auth";
 
 export const runtime = "nodejs";
@@ -19,7 +18,7 @@ export async function POST(
   if ("response" in auth) return auth.response;
 
   const { id } = await context.params;
-  const order = await prisma.order.findUnique({
+  const order = await auth.prisma.order.findUnique({
     where: { id },
     include: { customer: true }
   });
@@ -74,7 +73,7 @@ export async function POST(
     return NextResponse.json({ error: "Telegram отправил сообщение, но не вернул идентификатор фотографии." }, { status: 502 });
   }
 
-  const saved = await prisma.$transaction(async (tx) => {
+  const saved = await auth.prisma.$transaction(async (tx) => {
     if (order.completionFileId) {
       await tx.orderFile.deleteMany({
         where: { id: order.completionFileId, orderId: order.id }

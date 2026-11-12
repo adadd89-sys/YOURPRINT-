@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../../lib/prisma";
+import { createPrismaClient } from "../../../../lib/prisma";
 import { validateTelegramInitData } from "../../../../lib/telegram-auth";
 
 export const runtime = "nodejs";
@@ -12,6 +12,7 @@ async function authenticate(request: NextRequest) {
   if (!telegramUser) {
     return { error: NextResponse.json({ error: "Не удалось подтвердить Telegram. Переоткройте Mini App." }, { status: 401 }) };
   }
+  const prisma = createPrismaClient();
   const user = await prisma.user.upsert({
     where: { telegramId: BigInt(telegramUser.id) },
     create: {
@@ -26,14 +27,14 @@ async function authenticate(request: NextRequest) {
       lastName: telegramUser.last_name
     }
   });
-  return { user, telegramUser, token };
+  return { user, telegramUser, token, prisma };
 }
 
 export async function GET(request: NextRequest) {
   const auth = await authenticate(request);
   if ("error" in auth) return auth.error;
 
-  const orders = await prisma.order.findMany({
+  const orders = await auth.prisma.order.findMany({
     where: { customerId: auth.user.id },
     orderBy: { createdAt: "desc" },
     take: 100,
@@ -85,7 +86,7 @@ export async function POST(request: NextRequest) {
   }
 
   // The source order is always scoped to the authenticated Telegram user.
-  const source = await prisma.order.findFirst({
+  const source = await auth.prisma.order.findFirst({
     where: { id: body.orderId, customerId: auth.user.id },
     include: { items: true, files: true }
   });
@@ -93,7 +94,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Заказ не найден или его нельзя повторить." }, { status: 404 });
   }
 
-  const repeated = await prisma.order.create({
+  const repeated = await auth.prisma.order.create({
     data: {
       customerId: auth.user.id,
       artworkType: source.artworkType,
