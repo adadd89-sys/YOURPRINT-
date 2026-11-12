@@ -2,12 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
+type TelegramMessage = {
+  message_id?: number;
+  text?: string;
+  from?: { id: number };
+  chat?: { id: number; type?: string; username?: string };
+};
+
 type TelegramUpdate = {
-  message?: {
-    text?: string;
-    from?: { id: number };
-    chat?: { id: number; type?: string };
-  };
+  message?: TelegramMessage;
+  channel_post?: TelegramMessage;
 };
 
 function isValidSecret(received: string | null, expected: string) {
@@ -51,6 +55,41 @@ async function sendTelegramMessage(
   }
 }
 
+async function addChannelOrderButton(token: string, post: TelegramMessage) {
+  const chatId = post.chat?.id;
+  const messageId = post.message_id;
+  if (!chatId || !messageId) return;
+
+  // Channel posts use a Telegram deep link to the bot's Main Mini App.
+  // This matches the already working button implementation in Стрелок.
+  const miniAppLink = "https://t.me/Yourprint_kznbot?startapp";
+  const response = await fetch(
+    `https://api.telegram.org/bot${token}/editMessageReplyMarkup`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        message_id: messageId,
+        reply_markup: {
+          inline_keyboard: [[{
+            text: "Заказать принт",
+            url: miniAppLink
+          }]]
+        }
+      }),
+      signal: AbortSignal.timeout(15000)
+    }
+  );
+
+  const result = await response.json() as { ok?: boolean; description?: string };
+  if (!response.ok || !result.ok) {
+    console.error("YOURPRINT channel button could not be attached:", result.description || response.status);
+  } else {
+    console.log("YOURPRINT order button attached to channel post:", messageId);
+  }
+}
+
 export async function POST(request: NextRequest) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const webhookSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
@@ -69,6 +108,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid update." }, { status: 400 });
   }
 
+  const channelPost = update.channel_post;
+  if (channelPost?.chat?.type === "channel") {
+    if (channelPost.chat.username?.toLowerCase() === "yourprintkzn") {
+      await addChannelOrderButton(token, channelPost);
+    }
+    return NextResponse.json({ ok: true });
+  }
+
   const message = update.message;
   const chatId = message?.chat?.id;
   const text = message?.text?.trim();
@@ -76,7 +123,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const command = text.split(/\s+/, 1)[0].split("@", 1)[0];
+  const command = text.split(/\\s+/, 1)[0].split("@", 1)[0];
   const miniAppBaseUrl = process.env.MINI_APP_URL || request.nextUrl.origin;
 
   if (command === "/start") {
