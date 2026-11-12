@@ -314,7 +314,6 @@ footer {
   .admin-title { font-size: 32px; }
 }
 
-
 /* Order file attachment */
 .upload-field { display: grid; gap: 10px; }
 .upload-drop {
@@ -375,7 +374,6 @@ footer {
   font-size: 12px;
 }
 .admin-files p { margin: 8px 0 0; font-size: 11px; }
-
 
 /* Customer account */
 .customer-account {
@@ -503,7 +501,6 @@ footer {
   .account-order-top, .account-order-bottom { align-items: flex-start; }
 }
 
-
 /* Promo code management */
 .promo-admin {
   margin: 0 0 55px;
@@ -577,7 +574,6 @@ footer {
   .promo-create-form .admin-save { grid-column: auto; }
 }
 
-
 .admin-create {
   margin: 22px 0 26px;
   padding: 20px;
@@ -595,7 +591,6 @@ footer {
 @media (max-width: 560px) {
   .admin-create-grid { grid-template-columns: 1fr; }
 }
-
 
 .admin-completion-photo {
   display: grid;
@@ -616,7 +611,6 @@ footer {
 }
 .admin-completion-photo .admin-save { margin: 0; }
 .completion-photo-note { color: #eee !important; }
-
 
 /* Compact Mini App layout */
 .page { width: min(100% - 24px, 560px); }
@@ -674,7 +668,6 @@ footer { padding: 15px 0; }
   .choice-grid { grid-template-columns: 1fr 1fr; }
 }
 
-
 /* Strelok-style compact admin navigation */
 .admin-tabs {
   display: flex;
@@ -703,7 +696,6 @@ footer { padding: 15px 0; }
   background: #242424;
   border-color: #555;
 }
-
 
 /* Section hub and custom print designer */
 .section-kicker {
@@ -798,16 +790,6 @@ footer { padding: 15px 0; }
 .garment-svg.garment-sweatshirt { width: 89%; }
 .garment-svg.garment-tee { width: 86%; }
 /* Turn the garment itself to expose the shoulder area; keep artwork upright */
-.designer-preview.preview-shoulder .garment-svg {
-  width: 72%;
-  height: 108%;
-  transform: rotate(90deg);
-  transform-origin: 50% 50%;
-}
-.designer-preview.preview-shoulder .designer-artwork {
-  max-width: 22%;
-  max-height: 24%;
-}
 
 .designer-artwork {
   position: absolute;
@@ -910,14 +892,12 @@ footer { padding: 15px 0; }
   .designer-section { padding: 15px 11px; }
 }
 
-
 /* Dedicated customer account page */
 .account-route-heading { padding: 26px 0 18px; }
 .account-route-heading h1 { margin-top: 9px; font-size: clamp(34px, 9vw, 48px); letter-spacing: -2px; }
 .account-route-heading > p { margin: 10px 0 0; color: #aaa; font-size: 12px; line-height: 1.5; }
 .account-route-heading .session-bar,
 .account-route-heading .session-note { margin-top: 10px; }
-
 
 /* Consistent return-to-home button on every section */
 .section-home-link {
@@ -938,7 +918,6 @@ footer { padding: 15px 0; }
 }
 .section-home-link:hover { background: #292929; border-color: #888; }
 
-
 /* YOURPRINT original brand mark */
 .brand-logo-link {
   display: inline-flex;
@@ -957,7 +936,6 @@ footer { padding: 15px 0; }
 }
 .admin-header .brand-logo-link { width: 48px; height: 48px; }
 .admin-gate .brand-logo-link { width: 64px; height: 64px; flex-basis: 64px; }
-
 
 /* Larger inline YOURPRINT mark, vertically aligned with the slogan */
 .hero-brand-row {
